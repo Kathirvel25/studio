@@ -33,33 +33,35 @@ export function UpcomingDeadlines({ deadlines }: UpcomingDeadlinesProps) {
         <CardTitle>Upcoming Deadlines</CardTitle>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead className="text-right">Due Date</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {deadlines.map((deadline) => (
-              <TableRow key={deadline.id}>
-                <TableCell className="font-medium">{deadline.name}</TableCell>
-                <TableCell>
-                  <Badge variant={deadline.type === 'Exam' ? 'destructive' : 'secondary'}>{deadline.type}</Badge>
-                </TableCell>
-                <TableCell className="text-right">{format(new Date(deadline.due), "MMM dd, yyyy")}</TableCell>
+        <div className="overflow-auto max-h-[300px]">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead className="text-right">Due Date</TableHead>
               </TableRow>
-            ))}
-             {deadlines.length === 0 && (
-                <TableRow>
-                    <TableCell colSpan={3} className="text-center text-muted-foreground">
-                        No upcoming deadlines.
-                    </TableCell>
+            </TableHeader>
+            <TableBody>
+              {deadlines.map((deadline) => (
+                <TableRow key={deadline.id}>
+                  <TableCell className="font-medium">{deadline.name}</TableCell>
+                  <TableCell>
+                    <Badge variant={deadline.type === 'Exam' ? 'destructive' : 'secondary'}>{deadline.type}</Badge>
+                  </TableCell>
+                  <TableCell className="text-right">{format(new Date(deadline.due), "MMM dd, yyyy")}</TableCell>
                 </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+              {deadlines.length === 0 && (
+                  <TableRow>
+                      <TableCell colSpan={3} className="text-center text-muted-foreground h-24">
+                          No upcoming deadlines.
+                      </TableCell>
+                  </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );

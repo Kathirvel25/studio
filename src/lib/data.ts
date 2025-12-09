@@ -1,3 +1,5 @@
+export const learningSubjects = ['Biology', 'Math', 'History', 'Physics', 'Chemistry'];
+
 export const todaysTasks = [
   { id: 'task-1', label: 'Review Chapter 3 of Biology', subject: 'Biology', done: true },
   { id: 'task-2', label: 'Complete math assignment on Algebra', subject: 'Math', done: false },

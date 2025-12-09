@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Calendar, BookCopy, Flame, LayoutDashboard, Settings, FileText } from "lucide-react";
+import { BrainCircuit, Calendar, BookCopy, Flame, LayoutDashboard, Settings, FileText, Youtube } from "lucide-react";
 
 import {
   Sidebar,
@@ -21,6 +21,7 @@ const menuItems = [
   { href: "/streaks", label: "Streaks", icon: Flame },
   { href: "/summarizer", label: "Summarizer", icon: FileText },
   { href: "/ai-feedback", label: "AI Feedback", icon: BrainCircuit },
+  { href: "/resources", label: "Resources", icon: Youtube },
 ];
 
 const settingsMenuItem = { href: "/settings", label: "Settings", icon: Settings };

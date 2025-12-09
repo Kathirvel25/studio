@@ -3,6 +3,7 @@ import { TodaysTasks } from "@/components/dashboard/todays-tasks";
 import { WeeklyProgress } from "@/components/dashboard/weekly-progress";
 import { ProgressOverviewChart } from "@/components/dashboard/progress-overview-chart";
 import { UpcomingDeadlines } from "@/components/dashboard/upcoming-deadlines";
+import { SuggestedVideos } from "@/components/dashboard/suggested-videos";
 import {
   Card,
   CardContent,
@@ -10,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { streak, weeklyProgress, progressChartData, todaysTasks, upcomingDeadlines } from "@/lib/data";
+import { streak, weeklyProgress, progressChartData, todaysTasks, upcomingDeadlines, learningSubjects } from "@/lib/data";
 
 export default function DashboardPage() {
   return (
@@ -50,7 +51,10 @@ export default function DashboardPage() {
           <TodaysTasks tasks={todaysTasks} />
         </div>
       </div>
-      <UpcomingDeadlines deadlines={upcomingDeadlines} />
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <UpcomingDeadlines deadlines={upcomingDeadlines} />
+        <SuggestedVideos subjects={learningSubjects} />
+      </div>
     </div>
   );
 }

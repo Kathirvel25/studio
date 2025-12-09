@@ -7,7 +7,7 @@ export default function SummarizerPage() {
         <h2 className="text-3xl font-bold tracking-tight">Document Summarizer</h2>
       </div>
       <p className="text-muted-foreground">
-        Upload a text document to get a concise summary.
+        Paste text or upload a document to get a concise summary.
       </p>
       <SummarizerClient />
     </div>
