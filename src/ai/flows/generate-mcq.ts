@@ -1,0 +1,64 @@
+'use server';
+
+/**
+ * @fileOverview A flow for generating multiple-choice questions from a document.
+ *
+ * - generateMcq - A function that takes document content and returns a set of MCQs.
+ * - GenerateMcqInput - The input type for the generateMcq function.
+ * - GenerateMcqOutput - The return type for the generateMcq function.
+ */
+
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
+
+const GenerateMcqInputSchema = z.object({
+  documentContent: z
+    .string()
+    .describe('The text content of the document to generate questions from.'),
+});
+export type GenerateMcqInput = z.infer<typeof GenerateMcqInputSchema>;
+
+const McqQuestionSchema = z.object({
+  question: z.string().describe('The multiple-choice question.'),
+  options: z.array(z.string()).describe('An array of 4 possible answers.'),
+  correctAnswerIndex: z
+    .number()
+    .describe('The index of the correct answer in the options array.'),
+});
+
+const GenerateMcqOutputSchema = z.object({
+  questions: z
+    .array(McqQuestionSchema)
+    .describe('A list of 5 multiple-choice questions.'),
+});
+export type GenerateMcqOutput = z.infer<typeof GenerateMcqOutputSchema>;
+
+export async function generateMcq(
+  input: GenerateMcqInput
+): Promise<GenerateMcqOutput> {
+  return generateMcqFlow(input);
+}
+
+const prompt = ai.definePrompt({
+  name: 'generateMcqPrompt',
+  input: { schema: GenerateMcqInputSchema },
+  output: { schema: GenerateMcqOutputSchema },
+  prompt: `You are an expert teacher creating a quiz for a student. Based on the document provided, generate 5 multiple-choice questions to test their understanding. Each question should have 4 options.
+
+Document Content:
+{{{documentContent}}}
+
+Please generate 5 questions. For each question, provide the question text, 4 options, and the index of the correct answer.`,
+});
+
+const generateMcqFlow = ai.defineFlow(
+  {
+    name: 'generateMcqFlow',
+    inputSchema: GenerateMcqInputSchema,
+    outputSchema: GenerateMcqOutputSchema,
+  },
+  async input => {
+    const { output } = await prompt(input);
+    return output!;
+  }
+);
