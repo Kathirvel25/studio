@@ -1,6 +1,8 @@
+"use client";
+
 import { AppSidebar } from "@/components/app-sidebar";
 import { UserNav } from "@/components/user-nav";
-import { SidebarProvider, Sidebar, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function AppLayout({
   children,
