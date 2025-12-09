@@ -58,7 +58,7 @@ export default function OnboardingPage() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-lg">
         <CardHeader>
-          <CardTitle className="text-2xl">Welcome to StudyStreak AI!</CardTitle>
+          <CardTitle className="text-2xl">Welcome to StudyMate!</CardTitle>
           <CardDescription>
             Let's set up your study plan. Tell us a bit about your goals.
           </CardDescription>
