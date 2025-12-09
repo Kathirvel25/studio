@@ -8,14 +8,12 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -24,105 +22,106 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/firebase";
+import {
+  initiateEmailSignIn,
+  initiateEmailSignUp,
+} from "@/firebase/non-blocking-login";
+import { Github } from "lucide-react";
 
 const formSchema = z.object({
-  learningSubjects: z.string().min(1, "Please enter at least one subject."),
-  upcomingTasks: z.string().min(1, "Please list some upcoming tasks."),
-  studyTime: z.string().min(1, "Please enter your daily study time goal."),
+  email: z.string().email("Please enter a valid email address."),
+  password: z.string().min(6, "Password must be at least 6 characters long."),
 });
 
 export default function OnboardingPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const auth = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      learningSubjects: "",
-      upcomingTasks: "",
-      studyTime: "",
+      email: "",
+      password: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // In a real app, you would save this data to a database.
-    console.log("Onboarding data:", values);
+  function handleLogin(values: z.infer<typeof formSchema>) {
+    initiateEmailSignIn(auth, values.email, values.password);
     toast({
-      title: "Welcome!",
-      description: "Your study plan is set up. Let's get started!",
+      title: "Logging in...",
+      description: "You will be redirected shortly.",
+    });
+    router.push("/dashboard");
+  }
+
+  function handleSignUp(values: z.infer<typeof formSchema>) {
+    initiateEmailSignUp(auth, values.email, values.password);
+    toast({
+      title: "Creating account...",
+      description: "Welcome! You will be logged in shortly.",
     });
     router.push("/dashboard");
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-lg">
-        <CardHeader>
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
           <CardTitle className="text-2xl">Welcome to StudyMate!</CardTitle>
           <CardDescription>
-            Let's set up your study plan. Tell us a bit about your goals.
+            Sign in or create an account to get started.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form className="space-y-6">
               <FormField
                 control={form.control}
-                name="learningSubjects"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>What are you learning?</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="e.g., Math, History, Physics"
+                        type="email"
+                        placeholder="jane.doe@example.com"
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription>
-                      List the subjects you are currently studying.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
-                name="upcomingTasks"
+                name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Upcoming Tasks or Deadlines</FormLabel>
+                    <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="e.g., Chapter 3 homework, Mid-term exam on the 15th..."
-                        {...field}
-                      />
+                      <Input type="password" placeholder="••••••••" {...field} />
                     </FormControl>
-                    <FormDescription>
-                      List a few initial tasks to get you started.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="studyTime"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Daily Study Time Goal</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., 2 hours" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      How much time do you plan to study each day?
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full">
-                Start My Study Journey
-              </Button>
+              <div className="flex flex-col space-y-2">
+                <Button
+                  onClick={form.handleSubmit(handleLogin)}
+                  className="w-full"
+                >
+                  Sign In
+                </Button>
+                <Button
+                  onClick={form.handleSubmit(handleSignUp)}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Sign Up
+                </Button>
+              </div>
             </form>
           </Form>
         </CardContent>

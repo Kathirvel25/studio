@@ -3,12 +3,34 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { UserNav } from "@/components/user-nav";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { useUser } from "@/firebase";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import OnboardingPage from "./onboarding/page";
 
 export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push("/");
+    }
+  }, [user, isUserLoading, router]);
+
+  if (isUserLoading) {
+    // You can render a loading spinner here
+    return <div>Loading...</div>;
+  }
+  
+  if (!user) {
+    return <OnboardingPage />;
+  }
+
   return (
       <SidebarProvider>
         <AppSidebar />
