@@ -16,7 +16,7 @@ export default function AppLayout({
           <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur-sm sm:px-6">
             <SidebarTrigger className="md:hidden" />
             <div className="flex-1">
-              {/* <h1 className="text-lg font-semibold">StudyStreak AI</h1> */}
+              {/* <h1 className="text-lg font-semibold">StudyMate</h1> */}
             </div>
             <UserNav />
           </header>
