@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Calendar, BookCopy, Flame, LayoutDashboard, Settings } from "lucide-react";
+import { BrainCircuit, Calendar, BookCopy, Flame, LayoutDashboard, Settings, FileText } from "lucide-react";
 
 import {
   Sidebar,
@@ -19,6 +19,7 @@ const menuItems = [
   { href: "/schedule", label: "Schedule", icon: Calendar },
   { href: "/syllabus", label: "Syllabus", icon: BookCopy },
   { href: "/streaks", label: "Streaks", icon: Flame },
+  { href: "/summarizer", label: "Summarizer", icon: FileText },
   { href: "/ai-feedback", label: "AI Feedback", icon: BrainCircuit },
 ];
 
@@ -42,15 +43,15 @@ export function AppSidebar() {
         <SidebarMenu>
             {menuItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                    <Link href={item.href} legacyBehavior passHref>
-                    <SidebarMenuButton
-                        isActive={isActive(item.href)}
-                        tooltip={{ children: item.label, side: "right" }}
-                        className="justify-start"
-                    >
-                        <item.icon className="h-5 w-5" />
-                        <span>{item.label}</span>
-                    </SidebarMenuButton>
+                    <Link href={item.href}>
+                      <SidebarMenuButton
+                          isActive={isActive(item.href)}
+                          tooltip={{ children: item.label, side: "right" }}
+                          className="justify-start"
+                      >
+                          <item.icon className="h-5 w-5" />
+                          <span>{item.label}</span>
+                      </SidebarMenuButton>
                     </Link>
                 </SidebarMenuItem>
             ))}
@@ -59,7 +60,7 @@ export function AppSidebar() {
       <SidebarContent className="p-2 mt-auto">
          <SidebarMenu>
             <SidebarMenuItem>
-                <Link href={settingsMenuItem.href} legacyBehavior passHref>
+                <Link href={settingsMenuItem.href}>
                 <SidebarMenuButton
                     isActive={isActive(settingsMenuItem.href)}
                     tooltip={{ children: settingsMenuItem.label, side: "right" }}
