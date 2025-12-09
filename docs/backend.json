@@ -1,0 +1,484 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a student's profile information.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user profile."
+        },
+        "name": {
+          "type": "string",
+          "description": "The student's full name."
+        },
+        "classYear": {
+          "type": "string",
+          "description": "The student's current class or year of study (e.g., 'Sophomore', 'Year 3')."
+        },
+        "department": {
+          "type": "string",
+          "description": "The student's department or major (e.g., 'Computer Science', 'Biology')."
+        },
+        "preferredStudyTimings": {
+          "type": "string",
+          "description": "The student's preferred study timings (e.g., 'Evenings', 'Mornings')."
+        },
+        "subjects": {
+          "type": "array",
+          "description": "A list of subjects the student is studying.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "classYear",
+        "department",
+        "preferredStudyTimings",
+        "subjects"
+      ]
+    },
+    "Task": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Task",
+      "type": "object",
+      "description": "Represents a single task or assignment.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the task."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Task)"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of task (e.g., 'Exam', 'Assignment', 'Meeting', 'Class')."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title or name of the task."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the task."
+        },
+        "dueDate": {
+          "type": "string",
+          "description": "The due date or deadline for the task.",
+          "format": "date-time"
+        },
+        "isCompleted": {
+          "type": "boolean",
+          "description": "Indicates whether the task is completed or not."
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "type",
+        "title",
+        "description",
+        "dueDate",
+        "isCompleted"
+      ]
+    },
+    "Syllabus": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Syllabus",
+      "type": "object",
+      "description": "Represents the syllabus for a particular subject.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the syllabus."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Syllabus)"
+        },
+        "subject": {
+          "type": "string",
+          "description": "The name of the subject (e.g., 'Math', 'History')."
+        },
+        "chapters": {
+          "type": "array",
+          "description": "An array of chapters in the syllabus.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "subject",
+        "chapters"
+      ]
+    },
+    "Schedule": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Schedule",
+      "type": "object",
+      "description": "Represents a scheduled study block or event.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the schedule entry."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Schedule)"
+        },
+        "taskId": {
+          "type": "string",
+          "description": "Reference to Task. (Relationship: Task 1:N Schedule)"
+        },
+        "startTime": {
+          "type": "string",
+          "description": "The start time of the scheduled event.",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "description": "The end time of the scheduled event.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "taskId",
+        "startTime",
+        "endTime"
+      ]
+    },
+    "Progress": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Progress",
+      "type": "object",
+      "description": "Represents the student's progress in a subject or task.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the progress record."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Progress)"
+        },
+        "subject": {
+          "type": "string",
+          "description": "The subject for which progress is being tracked."
+        },
+        "completionPercentage": {
+          "type": "number",
+          "description": "The percentage of the subject or task that has been completed."
+        },
+        "lastUpdated": {
+          "type": "string",
+          "description": "The date and time the progress was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "subject",
+        "completionPercentage",
+        "lastUpdated"
+      ]
+    },
+    "Streak": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Streak",
+      "type": "object",
+      "description": "Represents the student's study streak.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the streak record."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Streak)"
+        },
+        "currentStreak": {
+          "type": "number",
+          "description": "The current number of consecutive days the student has studied."
+        },
+        "longestStreak": {
+          "type": "number",
+          "description": "The student's longest study streak."
+        },
+        "lastStudiedDate": {
+          "type": "string",
+          "description": "The date the student last studied.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "currentStreak",
+        "longestStreak",
+        "lastStudiedDate"
+      ]
+    },
+    "WeeklyReport": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WeeklyReport",
+      "type": "object",
+      "description": "Represents a weekly report generated for a student.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the weekly report."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N WeeklyReport)"
+        },
+        "weekStartDate": {
+          "type": "string",
+          "description": "The start date of the week the report covers.",
+          "format": "date-time"
+        },
+        "completionPercentage": {
+          "type": "number",
+          "description": "The percentage of tasks completed during the week."
+        },
+        "areasToFocus": {
+          "type": "string",
+          "description": "Areas or subjects the student should focus on in the coming week."
+        },
+        "reportGeneratedDate": {
+          "type": "string",
+          "description": "The date the report was generated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "weekStartDate",
+        "completionPercentage",
+        "areasToFocus",
+        "reportGeneratedDate"
+      ]
+    },
+    "Badge": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Badge",
+      "type": "object",
+      "description": "Represents an achievement badge awarded to a student.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the badge."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Badge)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the badge (e.g., 'Consistency Badge', 'Early Bird')."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the badge and its criteria."
+        },
+        "awardedDate": {
+          "type": "string",
+          "description": "The date the badge was awarded.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "name",
+        "description",
+        "awardedDate"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}/userProfiles/{userProfileId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information. The userProfileId will typically match the userId. Path based ownership for simple security rules.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "userProfileId",
+              "description": "The unique identifier for the user profile; often matches the userId."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/tasks/{taskId}",
+        "definition": {
+          "entityName": "Task",
+          "schema": {
+            "$ref": "#/backend/entities/Task"
+          },
+          "description": "Stores tasks associated with a specific user. Path-based ownership enforced by the user ID.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "taskId",
+              "description": "The unique identifier for the task."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/syllabi/{syllabusId}",
+        "definition": {
+          "entityName": "Syllabus",
+          "schema": {
+            "$ref": "#/backend/entities/Syllabus"
+          },
+          "description": "Stores syllabi associated with a specific user. Path-based ownership simplifies security rules.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "syllabusId",
+              "description": "The unique identifier for the syllabus."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/schedules/{scheduleId}",
+        "definition": {
+          "entityName": "Schedule",
+          "schema": {
+            "$ref": "#/backend/entities/Schedule"
+          },
+          "description": "Stores schedules associated with a specific user. Path-based ownership simplifies security.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "scheduleId",
+              "description": "The unique identifier for the schedule entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/progress/{progressId}",
+        "definition": {
+          "entityName": "Progress",
+          "schema": {
+            "$ref": "#/backend/entities/Progress"
+          },
+          "description": "Stores progress records associated with a specific user. Path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "progressId",
+              "description": "The unique identifier for the progress record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/streaks/{streakId}",
+        "definition": {
+          "entityName": "Streak",
+          "schema": {
+            "$ref": "#/backend/entities/Streak"
+          },
+          "description": "Stores streak data associated with a specific user. Path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "streakId",
+              "description": "The unique identifier for the streak record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/weeklyReports/{weeklyReportId}",
+        "definition": {
+          "entityName": "WeeklyReport",
+          "schema": {
+            "$ref": "#/backend/entities/WeeklyReport"
+          },
+          "description": "Stores weekly reports associated with a specific user. Path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "weeklyReportId",
+              "description": "The unique identifier for the weekly report."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/badges/{badgeId}",
+        "definition": {
+          "entityName": "Badge",
+          "schema": {
+            "$ref": "#/backend/entities/Badge"
+          },
+          "description": "Stores badges associated with a specific user. Path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            },
+            {
+              "name": "badgeId",
+              "description": "The unique identifier for the badge."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to prioritize authorization independence and efficient data retrieval based on user ownership. Each user has their own collection of tasks, syllabi, schedules, progress, streaks, weekly reports, and badges under their user profile. This eliminates the need for complex queries or security rules that traverse multiple collections. By nesting data within user-specific collections, we achieve path-based ownership, simplifying security rules and ensuring that users can only access their own data. This design aligns with the principle of Authorization Independence, as each document's access control can be determined solely by its path and the authenticated user's ID, avoiding `get()` calls in security rules. QAPs are supported by the segregation of user data; list operations are inherently secure because each user can only list documents within their own collection."
+  }
+}

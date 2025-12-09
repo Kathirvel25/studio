@@ -1,0 +1,219 @@
+/**
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model. All user-generated
+ * data is stored in subcollections under a path dedicated to that user,
+ * ensuring that users can only access their own information. The security
+ * model is designed to be fast and cost-effective by relying on path-based
+ * authorization, which avoids the need for extra database reads (`get()` calls)
+ * within the rules.
+ *
+ * Data Structure:
+ * The Firestore database is organized hierarchically. A top-level `users`
+ * collection contains documents for each user, identified by their unique
+ * authentication UID. All specific data entities—such as profiles, tasks,
+ * schedules, and progress reports—are stored in distinct subcollections
+ * nested under the corresponding `/users/{userId}` document.
+ *
+ * Key Security Decisions:
+ * - Default Deny: All access is denied by default. Permissions must be
+ *   explicitly granted.
+ * - Path-Based Ownership: A user's identity (`request.auth.uid`) is checked
+ *   against the `{userId}` wildcard in the document path to grant access.
+ *   This is the primary mechanism for securing all user data.
+ * - No User Listing: The rules do not allow listing the top-level `/users`
+ *   collection, preventing any client from discovering the full list of users.
+ * - Relational Integrity: On document creation, rules validate that an
+ *   internal ownership field (e.g., `userProfileId`) correctly matches the
+ *   `{userId}` from the path, ensuring data consistency and preventing
+ *   mis-categorization of records. This ownership link is immutable.
+ *
+ * Denormalization for Authorization:
+ * This ruleset's design is heavily reliant on a data structure that places
+ * authorization information directly in the document path (e.g., `/users/{userId}`).
+ * This is the most performant method of denormalization for authorization.
+ * Additionally, documents within these user-specific subcollections contain a
+ * denormalized `userProfileId` field, which is validated against the path to
+ * ensure integrity.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ----------------------------------------------------------------------
+    // Helper Functions
+    // ----------------------------------------------------------------------
+
+    /**
+     * Checks if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the authenticated user's UID matches the userId from the path.
+     * This is the core of the ownership-based security model.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Combines an ownership check with a check to ensure the document
+     * already exists. This is critical for secure update and delete operations.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    // --- Data Validation Helpers ---
+
+    /**
+     * For UserProfile: Validates the document's internal 'id' matches its path ID on creation.
+     */
+    function isUserProfileSelfConsistentOnCreate(userProfileId) {
+      return request.resource.data.id == userProfileId;
+    }
+
+    /**
+     * For UserProfile: Enforces that the internal 'id' cannot be changed after creation.
+     */
+    function isUserProfileIdImmutable() {
+      return request.resource.data.id == resource.data.id;
+    }
+
+    /**
+     * For other subcollections: Validates 'userProfileId' links to the parent user path on creation.
+     */
+    function isDataLinkedToOwnerOnCreate(userId) {
+      return request.resource.data.userProfileId == userId;
+    }
+
+    /**
+     * For other subcollections: Enforces the ownership link cannot be changed after creation.
+     */
+    function isOwnerLinkImmutable() {
+      return request.resource.data.userProfileId == resource.data.userProfileId;
+    }
+
+
+    // ----------------------------------------------------------------------
+    // Collection Rules
+    // ----------------------------------------------------------------------
+
+    match /users/{userId} {
+
+      /**
+       * @description Controls access to a user's own profile document.
+       * @path        /users/{userId}/userProfiles/{userProfileId}
+       * @allow       (auth.uid='user123') can (create, get, list, update, delete) `/users/user123/userProfiles/profileABC`
+       * @deny        (auth.uid='user456') cannot (create, get, list, update, delete) `/users/user123/userProfiles/profileABC`
+       * @principle   Restricts access to a user's own data tree and enforces relational integrity.
+       */
+      match /userProfiles/{userProfileId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isUserProfileSelfConsistentOnCreate(userProfileId);
+        allow update: if isExistingOwner(userId) && isUserProfileIdImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to a user's private tasks.
+       * @path        /users/{userId}/tasks/{taskId}
+       * @allow       (auth.uid='user123') can (create, get, list, update, delete) `/users/user123/tasks/taskABC`
+       * @deny        (auth.uid='user456') cannot (create, get, list, update, delete) `/users/user123/tasks/taskABC`
+       * @principle   Restricts access to a user's own data tree and enforces relational integrity.
+       */
+      match /tasks/{taskId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isDataLinkedToOwnerOnCreate(userId);
+        allow update: if isExistingOwner(userId) && isOwnerLinkImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to a user's private syllabi.
+       * @path        /users/{userId}/syllabi/{syllabusId}
+       * @allow       (auth.uid='user123') can (create, get, list, update, delete) `/users/user123/syllabi/syllabusABC`
+       * @deny        (auth.uid='user456') cannot (create, get, list, update, delete) `/users/user123/syllabi/syllabusABC`
+       * @principle   Restricts access to a user's own data tree and enforces relational integrity.
+       */
+      match /syllabi/{syllabusId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isDataLinkedToOwnerOnCreate(userId);
+        allow update: if isExistingOwner(userId) && isOwnerLinkImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to a user's private schedules.
+       * @path        /users/{userId}/schedules/{scheduleId}
+       * @allow       (auth.uid='user123') can (create, get, list, update, delete) `/users/user123/schedules/scheduleABC`
+       * @deny        (auth.uid='user456') cannot (create, get, list, update, delete) `/users/user123/schedules/scheduleABC`
+       * @principle   Restricts access to a user's own data tree and enforces relational integrity.
+       */
+      match /schedules/{scheduleId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isDataLinkedToOwnerOnCreate(userId);
+        allow update: if isExistingOwner(userId) && isOwnerLinkImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to a user's private progress records.
+       * @path        /users/{userId}/progress/{progressId}
+       * @allow       (auth.uid='user123') can (create, get, list, update, delete) `/users/user123/progress/progressABC`
+       * @deny        (auth.uid='user456') cannot (create, get, list, update, delete) `/users/user123/progress/progressABC`
+       * @principle   Restricts access to a user's own data tree and enforces relational integrity.
+       */
+      match /progress/{progressId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isDataLinkedToOwnerOnCreate(userId);
+        allow update: if isExistingOwner(userId) && isOwnerLinkImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to a user's private study streaks.
+       * @path        /users/{userId}/streaks/{streakId}
+       * @allow       (auth.uid='user123') can (create, get, list, update, delete) `/users/user123/streaks/streakABC`
+       * @deny        (auth.uid='user456') cannot (create, get, list, update, delete) `/users/user123/streaks/streakABC`
+       * @principle   Restricts access to a user's own data tree and enforces relational integrity.
+       */
+      match /streaks/{streakId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isDataLinkedToOwnerOnCreate(userId);
+        allow update: if isExistingOwner(userId) && isOwnerLinkImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to a user's private weekly reports.
+       * @path        /users/{userId}/weeklyReports/{weeklyReportId}
+       * @allow       (auth.uid='user123') can (create, get, list, update, delete) `/users/user123/weeklyReports/reportABC`
+       * @deny        (auth.uid='user456') cannot (create, get, list, update, delete) `/users/user123/weeklyReports/reportABC`
+       * @principle   Restricts access to a user's own data tree and enforces relational integrity.
+       */
+      match /weeklyReports/{weeklyReportId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isDataLinkedToOwnerOnCreate(userId);
+        allow update: if isExistingOwner(userId) && isOwnerLinkImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Controls access to a user's earned badges.
+       * @path        /users/{userId}/badges/{badgeId}
+       * @allow       (auth.uid='user123') can (create, get, list, update, delete) `/users/user123/badges/badgeABC`
+       * @deny        (auth.uid='user456') cannot (create, get, list, update, delete) `/users/user123/badges/badgeABC`
+       * @principle   Restricts access to a user's own data tree and enforces relational integrity.
+       */
+      match /badges/{badgeId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isDataLinkedToOwnerOnCreate(userId);
+        allow update: if isExistingOwner(userId) && isOwnerLinkImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+  }
+}
