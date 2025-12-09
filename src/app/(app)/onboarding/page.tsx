@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -24,10 +25,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/firebase";
 import {
-  initiateEmailSignIn,
-  initiateEmailSignUp,
-} from "@/firebase/non-blocking-login";
-import { Github } from "lucide-react";
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
@@ -47,22 +47,46 @@ export default function OnboardingPage() {
     },
   });
 
-  function handleLogin(values: z.infer<typeof formSchema>) {
-    initiateEmailSignIn(auth, values.email, values.password);
-    toast({
-      title: "Logging in...",
-      description: "You will be redirected shortly.",
-    });
-    router.push("/dashboard");
+  async function handleLogin(values: z.infer<typeof formSchema>) {
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+      toast({
+        title: "Logging in...",
+        description: "You will be redirected shortly.",
+      });
+      router.push("/dashboard");
+    } catch (error: any) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Sign in failed",
+        description:
+          error.code === "auth/invalid-credential"
+            ? "Incorrect email or password. Please try again."
+            : "An unexpected error occurred. Please try again.",
+      });
+    }
   }
 
-  function handleSignUp(values: z.infer<typeof formSchema>) {
-    initiateEmailSignUp(auth, values.email, values.password);
-    toast({
-      title: "Creating account...",
-      description: "Welcome! You will be logged in shortly.",
-    });
-    router.push("/dashboard");
+  async function handleSignUp(values: z.infer<typeof formSchema>) {
+    try {
+      await createUserWithEmailAndPassword(auth, values.email, values.password);
+      toast({
+        title: "Creating account...",
+        description: "Welcome! You will be logged in shortly.",
+      });
+      router.push("/dashboard");
+    } catch (error: any) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Sign up failed",
+        description:
+          error.code === "auth/email-already-in-use"
+            ? "This email is already registered. Please sign in."
+            : "An unexpected error occurred. Please try again.",
+      });
+    }
   }
 
   return (
