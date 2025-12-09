@@ -18,7 +18,7 @@ export function WeeklyProgress({ progress }: WeeklyProgressProps) {
   const percentage =
     progress.total > 0 ? (progress.completed / progress.total) * 100 : 0;
   return (
-    <Card>
+    <Card className="transition-transform transform hover:scale-105">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium">Weekly Goal</CardTitle>
         <CardDescription>

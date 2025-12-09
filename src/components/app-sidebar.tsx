@@ -36,8 +36,10 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center gap-2 p-2">
-            <Flame className="w-6 h-6 text-primary" />
-            <span className="text-lg font-semibold tracking-tighter">StudyStreak AI</span>
+            <Link href="/dashboard" className="flex items-center gap-2">
+                <Flame className="w-8 h-8 text-primary" />
+                <span className="text-lg font-semibold tracking-tighter text-sidebar-primary">StudyStreak AI</span>
+            </Link>
         </div>
       </SidebarHeader>
       <SidebarContent className="p-2">
