@@ -1,3 +1,4 @@
+
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,9 +18,9 @@ import {
 
 type Deadline = {
   id: string;
-  name: string;
-  due: string;
-  type: 'Exam' | 'Assignment' | 'Project';
+  title: string;
+  dueDate: { toDate: () => Date }; // Firestore Timestamp
+  type: 'Exam' | 'Assignment' | 'Project' | 'Study' | 'Quiz' | 'Other';
 };
 
 type UpcomingDeadlinesProps = {
@@ -27,6 +28,9 @@ type UpcomingDeadlinesProps = {
 };
 
 export function UpcomingDeadlines({ deadlines }: UpcomingDeadlinesProps) {
+
+  const sortedDeadlines = deadlines.sort((a, b) => a.dueDate.toDate().getTime() - b.dueDate.toDate().getTime());
+
   return (
     <Card>
       <CardHeader>
@@ -43,13 +47,13 @@ export function UpcomingDeadlines({ deadlines }: UpcomingDeadlinesProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {deadlines.map((deadline) => (
+              {sortedDeadlines.map((deadline) => (
                 <TableRow key={deadline.id}>
-                  <TableCell className="font-medium">{deadline.name}</TableCell>
+                  <TableCell className="font-medium">{deadline.title}</TableCell>
                   <TableCell>
                     <Badge variant={deadline.type === 'Exam' ? 'destructive' : 'secondary'}>{deadline.type}</Badge>
                   </TableCell>
-                  <TableCell className="text-right">{format(new Date(deadline.due), "MMM dd, yyyy")}</TableCell>
+                  <TableCell className="text-right">{format(deadline.dueDate.toDate(), "MMM dd, yyyy")}</TableCell>
                 </TableRow>
               ))}
               {deadlines.length === 0 && (

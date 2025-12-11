@@ -1,3 +1,4 @@
+
 "use client"
 
 import { Badge } from "@/components/ui/badge";
@@ -9,12 +10,14 @@ import {
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { useFirestore, useUser, updateDocumentNonBlocking } from "@/firebase";
+import { doc } from "firebase/firestore";
 
 type Task = {
   id: string;
-  label: string;
+  title: string;
   subject: string;
-  done: boolean;
+  isCompleted: boolean;
 };
 
 type TodaysTasksProps = {
@@ -22,6 +25,17 @@ type TodaysTasksProps = {
 };
 
 export function TodaysTasks({ tasks }: TodaysTasksProps) {
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const handleTaskToggle = (taskId: string, currentStatus: boolean) => {
+    if (user) {
+      const taskRef = doc(firestore, `users/${user.uid}/tasks/${taskId}`);
+      updateDocumentNonBlocking(taskRef, { isCompleted: !currentStatus });
+      // Here you could add logic to award XP
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -31,10 +45,14 @@ export function TodaysTasks({ tasks }: TodaysTasksProps) {
         <div className="space-y-4">
           {tasks.map((task) => (
             <div key={task.id} className="flex items-center space-x-4">
-              <Checkbox id={task.id} defaultChecked={task.done} />
+              <Checkbox 
+                id={task.id} 
+                checked={task.isCompleted} 
+                onCheckedChange={() => handleTaskToggle(task.id, task.isCompleted)}
+              />
               <div className="flex-1">
-                <Label htmlFor={task.id} className={`text-sm ${task.done ? 'line-through text-muted-foreground' : ''}`}>
-                  {task.label}
+                <Label htmlFor={task.id} className={`text-sm ${task.isCompleted ? 'line-through text-muted-foreground' : ''}`}>
+                  {task.title}
                 </Label>
               </div>
               <Badge variant="outline">{task.subject}</Badge>
