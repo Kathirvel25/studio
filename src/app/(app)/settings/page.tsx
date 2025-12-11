@@ -51,7 +51,7 @@ export default function SettingsPage() {
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
       name: "",
-      picture: null,
+      picture: undefined,
     },
   });
 
@@ -167,7 +167,7 @@ export default function SettingsPage() {
               <FormField
                 control={profileForm.control}
                 name="picture"
-                render={({ field: { onChange, ...fieldProps } }) => (
+                render={({ field: { value, onChange, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel>Profile Picture</FormLabel>
                     <FormControl>
