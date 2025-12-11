@@ -84,7 +84,7 @@ export default function OnboardingPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       fullName: "",
-      age: undefined,
+      age: "" as any,
       educationLevel: undefined,
       classYear: "",
       department: "",
