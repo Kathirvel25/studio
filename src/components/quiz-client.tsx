@@ -1,7 +1,8 @@
+
 "use client";
 
-import { useState } from "react";
-import { Loader2, Upload, BrainCircuit, Check, X, BookOpen, Lightbulb } from "lucide-react";
+import { useState, useRef } from "react";
+import { Loader2, Upload, BrainCircuit, Check, X, BookOpen, Lightbulb, Image as ImageIcon } from "lucide-react";
 import { generateMcq } from "@/app/(app)/quiz/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -11,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { GenerateMcqOutput } from "@/ai/flows/generate-mcq";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
-import { Progress } from "./ui/progress";
+import Image from "next/image";
 
 type QuizState = 'idle' | 'loading' | 'quiz' | 'result';
 type Answer = { questionIndex: number; selectedOption: number };
@@ -20,37 +21,66 @@ const PASS_PERCENTAGE = 70;
 
 export function QuizClient() {
   const [textContent, setTextContent] = useState("");
+  const [imageDataUri, setImageDataUri] = useState<string | null>(null);
   const [quiz, setQuiz] = useState<GenerateMcqOutput | null>(null);
   const [quizState, setQuizState] = useState<QuizState>('idle');
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [score, setScore] = useState(0);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
-      if (selectedFile.type === "text/plain") {
+      if (selectedFile.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setImageDataUri(e.target?.result as string);
+        };
+        reader.readAsDataURL(selectedFile);
+        setTextContent(""); // Clear text content when image is uploaded
+      } else if (selectedFile.type === "text/plain") {
         const reader = new FileReader();
         reader.onload = (e) => {
           setTextContent(e.target?.result as string);
         };
         reader.readAsText(selectedFile);
+        setImageDataUri(null);
       } else {
         toast({
           variant: "destructive",
           title: "Invalid file type",
-          description: "Please upload a .txt file.",
+          description: "Please upload a .txt or image file.",
         });
+      }
+    }
+  };
+  
+  const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = event.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        const blob = items[i].getAsFile();
+        if (blob) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            setImageDataUri(e.target?.result as string);
+            setTextContent(''); // Clear text if image is pasted
+          };
+          reader.readAsDataURL(blob);
+          event.preventDefault(); // Prevent pasting image as text
+          return;
+        }
       }
     }
   };
 
   const handleGenerateQuiz = async () => {
-    if (!textContent) {
+    if (!textContent && !imageDataUri) {
       toast({
         variant: "destructive",
         title: "No content",
-        description: "Please paste text or upload a file to generate a quiz.",
+        description: "Please paste text, an image, or upload a file to generate a quiz.",
       });
       return;
     }
@@ -61,7 +91,7 @@ export function QuizClient() {
     setScore(0);
 
     try {
-      const result = await generateMcq({ documentContent: textContent });
+      const result = await generateMcq({ documentContent: textContent, imageDataUri });
       if (result && result.questions.length > 0) {
         setQuiz(result);
         setQuizState('quiz');
@@ -114,8 +144,12 @@ export function QuizClient() {
     setQuizState('idle');
     setQuiz(null);
     setTextContent('');
+    setImageDataUri(null);
     setAnswers([]);
     setScore(0);
+    if(fileInputRef.current) {
+        fileInputRef.current.value = "";
+    }
   };
   
   const getOptionLabelClassName = (isCorrect: boolean, isSelected: boolean, isSubmitted: boolean) => {
@@ -213,30 +247,42 @@ export function QuizClient() {
     <Card>
       <CardHeader>
         <CardTitle>Create Your Quiz</CardTitle>
-        <CardDescription>Paste your study notes or upload a text file.</CardDescription>
+        <CardDescription>Paste your study notes or upload a file.</CardDescription>
       </CardHeader>
       <CardContent>
           <Tabs defaultValue="text">
               <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="text">Paste Text</TabsTrigger>
-                  <TabsTrigger value="upload">Upload File (.txt)</TabsTrigger>
+                  <TabsTrigger value="text">Paste Content</TabsTrigger>
+                  <TabsTrigger value="upload">Upload File</TabsTrigger>
               </TabsList>
               <TabsContent value="text" className="mt-4">
                   <Textarea 
-                      placeholder="Paste your study notes here..."
+                      placeholder="Paste your study notes or an image here..."
                       value={textContent}
-                      onChange={(e) => setTextContent(e.target.value)}
+                      onChange={(e) => {
+                        setTextContent(e.target.value);
+                        setImageDataUri(null);
+                      }}
+                      onPaste={handlePaste}
                       className="h-48"
                   />
+                   {imageDataUri && (
+                    <div className="mt-4 relative w-full h-48">
+                        <Image src={imageDataUri} alt="Pasted content" layout="fill" objectFit="contain" />
+                        <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => setImageDataUri(null)}>
+                            <X className="h-4 w-4" />
+                        </Button>
+                    </div>
+                   )}
               </TabsContent>
               <TabsContent value="upload" className="mt-4">
                   <div className="flex items-center space-x-2">
                       <Upload className="h-5 w-5 text-muted-foreground" />
-                      <input type="file" accept=".txt" onChange={handleFileChange} className="max-w-sm text-sm"/>
+                      <input type="file" accept=".txt,image/*" onChange={handleFilechange} ref={fileInputRef} className="max-w-sm text-sm"/>
                   </div>
               </TabsContent>
           </Tabs>
-          <Button onClick={handleGenerateQuiz} disabled={!textContent} className="mt-4 w-full">
+          <Button onClick={handleGenerateQuiz} disabled={!textContent && !imageDataUri} className="mt-4 w-full">
               <BrainCircuit className="mr-2 h-4 w-4" />
               Generate Quiz
           </Button>

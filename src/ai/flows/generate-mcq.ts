@@ -1,9 +1,9 @@
 'use server';
 
 /**
- * @fileOverview A flow for generating multiple-choice questions from a document.
+ * @fileOverview A flow for generating multiple-choice questions from a document or an image.
  *
- * - generateMcq - A function that takes document content and returns a set of MCQs.
+ * - generateMcq - A function that takes document content and/or an image and returns a set of MCQs.
  * - GenerateMcqInput - The input type for the generateMcq function.
  * - GenerateMcqOutput - The return type for the generateMcq function.
  */
@@ -14,7 +14,14 @@ import { z } from 'genkit';
 const GenerateMcqInputSchema = z.object({
   documentContent: z
     .string()
+    .optional()
     .describe('The text content of the document to generate questions from.'),
+  imageDataUri: z
+    .string()
+    .optional()
+    .describe(
+      "An image to generate questions from, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+    ),
 });
 export type GenerateMcqInput = z.infer<typeof GenerateMcqInputSchema>;
 
@@ -43,10 +50,17 @@ const prompt = ai.definePrompt({
   name: 'generateMcqPrompt',
   input: { schema: GenerateMcqInputSchema },
   output: { schema: GenerateMcqOutputSchema },
-  prompt: `You are an expert teacher creating a quiz for a student. Based on the document provided, generate 5 multiple-choice questions to test their understanding. Each question should have 4 options.
+  prompt: `You are an expert teacher creating a quiz for a student. Based on the document and/or image provided, generate 5 multiple-choice questions to test their understanding. Each question should have 4 options.
 
+{{#if documentContent}}
 Document Content:
 {{{documentContent}}}
+{{/if}}
+
+{{#if imageDataUri}}
+Image Content:
+{{media url=imageDataUri}}
+{{/if}}
 
 Please generate 5 questions. For each question, provide the question text, 4 options, and the index of the correct answer.`,
 });
