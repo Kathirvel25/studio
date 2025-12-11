@@ -6,6 +6,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
+import { doc, setDoc } from "firebase/firestore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -35,7 +36,7 @@ import {
 } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth, useUser } from "@/firebase";
+import { useUser, useFirestore, setDocumentNonBlocking } from "@/firebase";
 import {
   User,
   ShieldCheck,
@@ -44,6 +45,7 @@ import {
   ChevronLeft,
   PlusCircle,
   XCircle,
+  Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -79,8 +81,11 @@ const TOTAL_STEPS = 3;
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useUser();
+  const firestore = useFirestore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -132,14 +137,53 @@ export default function OnboardingPage() {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Submitting form...", values);
-    toast({
-      title: "Profile setup complete!",
-      description: "Redirecting you to the dashboard...",
-    });
-    // Here you would typically save the data to Firestore
-    // For now, we'll just redirect
-    router.push("/dashboard");
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "You must be logged in to create a profile.",
+      });
+      return;
+    }
+    setIsSubmitting(true);
+    
+    try {
+      const userProfileRef = doc(firestore, 'users', user.uid, 'userProfiles', user.uid);
+      
+      const profileData = {
+        id: user.uid,
+        name: values.fullName,
+        age: values.age,
+        gender: values.gender,
+        educationLevel: values.educationLevel,
+        classYear: values.classYear,
+        department: values.department,
+        institution: values.institution,
+        subjects: values.subjects,
+        onboardingComplete: true, // Flag to skip onboarding next time
+      };
+
+      setDocumentNonBlocking(userProfileRef, profileData, { merge: true });
+
+      toast({
+        title: "Profile setup complete!",
+        description: "Redirecting you to the dashboard...",
+      });
+
+      // Redirect after a short delay to allow toast to be seen
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1000);
+
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      toast({
+        variant: "destructive",
+        title: "Something went wrong",
+        description: "Could not save your profile. Please try again.",
+      });
+      setIsSubmitting(false);
+    }
   }
 
   const progress = (step / TOTAL_STEPS) * 100;
@@ -416,13 +460,14 @@ export default function OnboardingPage() {
 
             <CardFooter className="flex justify-between">
               {step > 1 ? (
-                <Button variant="ghost" onClick={prevStep}>
+                <Button variant="ghost" onClick={prevStep} disabled={isSubmitting}>
                   <ChevronLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
               ) : (
                 <div />
               )}
-              <Button onClick={nextStep}>
+              <Button onClick={nextStep} disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 {step === TOTAL_STEPS ? "Finish Setup" : "Next"}
               </Button>
             </CardFooter>
@@ -435,5 +480,3 @@ export default function OnboardingPage() {
     </div>
   );
 }
-
-    

@@ -4,22 +4,11 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { UserNav } from "@/components/user-nav";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { useUser } from "@/firebase";
+import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import OnboardingPage from "./onboarding/page";
-
-// Assume a function to check if user has completed onboarding
-// In a real app, this would check a flag in the user's Firestore profile
-async function checkIfOnboardingComplete(userId: string): Promise<boolean> {
-  // For now, let's simulate this. Replace with actual Firestore check.
-  console.log("Checking onboarding status for:", userId);
-  // const userProfileRef = doc(db, 'users', userId, 'userProfiles', userId);
-  // const docSnap = await getDoc(userProfileRef);
-  // return docSnap.exists() && docSnap.data().onboardingComplete === true;
-  return false; // For demonstration, force onboarding
-}
-
+import { doc } from "firebase/firestore";
 
 export default function AppLayout({
   children,
@@ -27,37 +16,52 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
   const router = useRouter();
+
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return doc(firestore, 'users', user.uid, 'userProfiles', user.uid);
+  }, [user, firestore]);
+  
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc(userProfileRef);
+
   const [isOnboarding, setIsOnboarding] = useState(true);
   const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true);
 
   useEffect(() => {
-    if (isUserLoading) return; // Wait until user object is available
-
+    if (isUserLoading || isProfileLoading) {
+      return; // Wait until both user and profile data are loaded
+    }
+    
     if (!user) {
       router.push("/");
       return;
     }
 
-    checkIfOnboardingComplete(user.uid).then(isComplete => {
-      if (!isComplete) {
-        setIsOnboarding(true);
-      } else {
-        setIsOnboarding(false);
-      }
-      setIsCheckingOnboarding(false);
-    });
+    if (userProfile && (userProfile as any).onboardingComplete) {
+      setIsOnboarding(false);
+    } else {
+      setIsOnboarding(true);
+    }
+    setIsCheckingOnboarding(false);
 
-  }, [user, isUserLoading, router]);
+  }, [user, isUserLoading, userProfile, isProfileLoading, router]);
 
   if (isUserLoading || isCheckingOnboarding) {
     // You can render a loading spinner here
-    return <div>Loading...</div>;
+    return <div className="flex h-screen w-full items-center justify-center">Loading...</div>;
   }
   
-  if (isOnboarding) {
+  if (isOnboarding && user) {
     return <OnboardingPage />;
   }
+
+  if (!user) {
+    // This case should be handled by the initial useEffect, but as a fallback
+    return <div className="flex h-screen w-full items-center justify-center">Redirecting...</div>;
+  }
+
 
   return (
       <SidebarProvider>
