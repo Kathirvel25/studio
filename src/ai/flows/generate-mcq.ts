@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -70,9 +71,12 @@ const generateMcqFlow = ai.defineFlow(
     name: 'generateMcqFlow',
     inputSchema: GenerateMcqInputSchema,
     outputSchema: GenerateMcqOutputSchema,
+    model: 'googleai/gemini-2.5-flash',
   },
   async input => {
     const { output } = await prompt(input);
     return output!;
   }
 );
+
+    

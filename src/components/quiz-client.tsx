@@ -91,7 +91,7 @@ export function QuizClient() {
     setScore(0);
 
     try {
-      const result = await generateMcq({ documentContent: textContent, imageDataUri });
+      const result = await generateMcq({ documentContent: textContent, imageDataUri: imageDataUri || undefined });
       if (result && result.questions.length > 0) {
         setQuiz(result);
         setQuizState('quiz');
@@ -278,7 +278,7 @@ export function QuizClient() {
               <TabsContent value="upload" className="mt-4">
                   <div className="flex items-center space-x-2">
                       <Upload className="h-5 w-5 text-muted-foreground" />
-                      <input type="file" accept=".txt,image/*" onChange={handleFilechange} ref={fileInputRef} className="max-w-sm text-sm"/>
+                      <input type="file" accept=".txt,image/*" onChange={handleFileChange} ref={fileInputRef} className="max-w-sm text-sm"/>
                   </div>
               </TabsContent>
           </Tabs>
@@ -290,3 +290,5 @@ export function QuizClient() {
     </Card>
   );
 }
+
+    
