@@ -1,3 +1,4 @@
+
 "use client";
 
 import { AppSidebar } from "@/components/app-sidebar";
@@ -5,8 +6,20 @@ import { UserNav } from "@/components/user-nav";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { useUser } from "@/firebase";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import OnboardingPage from "./onboarding/page";
+
+// Assume a function to check if user has completed onboarding
+// In a real app, this would check a flag in the user's Firestore profile
+async function checkIfOnboardingComplete(userId: string): Promise<boolean> {
+  // For now, let's simulate this. Replace with actual Firestore check.
+  console.log("Checking onboarding status for:", userId);
+  // const userProfileRef = doc(db, 'users', userId, 'userProfiles', userId);
+  // const docSnap = await getDoc(userProfileRef);
+  // return docSnap.exists() && docSnap.data().onboardingComplete === true;
+  return false; // For demonstration, force onboarding
+}
+
 
 export default function AppLayout({
   children,
@@ -15,19 +28,34 @@ export default function AppLayout({
 }) {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const [isOnboarding, setIsOnboarding] = useState(true);
+  const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(true);
 
   useEffect(() => {
-    if (!isUserLoading && !user) {
+    if (isUserLoading) return; // Wait until user object is available
+
+    if (!user) {
       router.push("/");
+      return;
     }
+
+    checkIfOnboardingComplete(user.uid).then(isComplete => {
+      if (!isComplete) {
+        setIsOnboarding(true);
+      } else {
+        setIsOnboarding(false);
+      }
+      setIsCheckingOnboarding(false);
+    });
+
   }, [user, isUserLoading, router]);
 
-  if (isUserLoading) {
+  if (isUserLoading || isCheckingOnboarding) {
     // You can render a loading spinner here
     return <div>Loading...</div>;
   }
   
-  if (!user) {
+  if (isOnboarding) {
     return <OnboardingPage />;
   }
 
