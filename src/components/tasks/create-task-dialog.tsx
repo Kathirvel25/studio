@@ -78,6 +78,7 @@ export function CreateTaskDialog({
       title: '',
       type: 'Assignment',
       priority: 'Medium',
+      estimatedTime: '' as any,
     },
   });
 
