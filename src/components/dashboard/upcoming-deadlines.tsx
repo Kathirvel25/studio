@@ -1,4 +1,5 @@
 
+
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "../ui/button";
 
 type Deadline = {
   id: string;
@@ -25,9 +27,10 @@ type Deadline = {
 
 type UpcomingDeadlinesProps = {
   deadlines: Deadline[];
+  onAddTask: () => void;
 };
 
-export function UpcomingDeadlines({ deadlines }: UpcomingDeadlinesProps) {
+export function UpcomingDeadlines({ deadlines, onAddTask }: UpcomingDeadlinesProps) {
 
   const sortedDeadlines = deadlines.sort((a, b) => a.dueDate.toDate().getTime() - b.dueDate.toDate().getTime());
 
@@ -47,19 +50,21 @@ export function UpcomingDeadlines({ deadlines }: UpcomingDeadlinesProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedDeadlines.map((deadline) => (
-                <TableRow key={deadline.id}>
-                  <TableCell className="font-medium">{deadline.title}</TableCell>
-                  <TableCell>
-                    <Badge variant={deadline.type === 'Exam' ? 'destructive' : 'secondary'}>{deadline.type}</Badge>
-                  </TableCell>
-                  <TableCell className="text-right">{format(deadline.dueDate.toDate(), "MMM dd, yyyy")}</TableCell>
-                </TableRow>
-              ))}
-              {deadlines.length === 0 && (
+              {sortedDeadlines.length > 0 ? (
+                sortedDeadlines.map((deadline) => (
+                  <TableRow key={deadline.id}>
+                    <TableCell className="font-medium">{deadline.title}</TableCell>
+                    <TableCell>
+                      <Badge variant={deadline.type === 'Exam' ? 'destructive' : 'secondary'}>{deadline.type}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">{format(deadline.dueDate.toDate(), "MMM dd, yyyy")}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
                   <TableRow>
-                      <TableCell colSpan={3} className="text-center text-muted-foreground h-24">
-                          No upcoming deadlines.
+                      <TableCell colSpan={3} className="h-24 text-center">
+                          <p className="text-muted-foreground">No upcoming deadlines.</p>
+                          <Button variant="link" onClick={onAddTask}>Add a deadline</Button>
                       </TableCell>
                   </TableRow>
               )}

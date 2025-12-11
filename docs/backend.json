@@ -119,11 +119,16 @@
         },
         "type": {
           "type": "string",
-          "description": "The type of task (e.g., 'Exam', 'Assignment', 'Meeting', 'Class')."
+          "description": "The type of task.",
+          "enum": ["Assignment", "Exam", "Project", "Study Session", "Other"]
         },
         "title": {
           "type": "string",
           "description": "The title or name of the task."
+        },
+        "subject": {
+            "type": "string",
+            "description": "The subject associated with the task."
         },
         "description": {
           "type": "string",
@@ -133,6 +138,18 @@
           "type": "string",
           "description": "The due date or deadline for the task.",
           "format": "date-time"
+        },
+        "priority": {
+            "type": "string",
+            "enum": ["Low", "Medium", "High"]
+        },
+        "status": {
+            "type": "string",
+            "enum": ["Pending", "In Progress", "Completed", "Overdue"]
+        },
+        "estimatedTime": {
+            "type": "number",
+            "description": "Estimated time to complete in minutes."
         },
         "isCompleted": {
           "type": "boolean",
@@ -144,9 +161,9 @@
         "userProfileId",
         "type",
         "title",
-        "description",
         "dueDate",
-        "isCompleted"
+        "isCompleted",
+        "status"
       ]
     },
     "Syllabus": {

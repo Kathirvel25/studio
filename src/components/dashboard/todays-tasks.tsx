@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useFirestore, useUser, updateDocumentNonBlocking } from "@/firebase";
 import { doc } from "firebase/firestore";
+import { Button } from "../ui/button";
 
 type Task = {
   id: string;
@@ -22,9 +24,10 @@ type Task = {
 
 type TodaysTasksProps = {
   tasks: Task[];
+  onAddTask: () => void;
 };
 
-export function TodaysTasks({ tasks }: TodaysTasksProps) {
+export function TodaysTasks({ tasks, onAddTask }: TodaysTasksProps) {
   const { user } = useUser();
   const firestore = useFirestore();
 
@@ -59,7 +62,10 @@ export function TodaysTasks({ tasks }: TodaysTasksProps) {
             </div>
           ))}
           {tasks.length === 0 && (
-             <p className="text-sm text-muted-foreground">No tasks for today. Enjoy your break!</p>
+            <div className="text-center text-muted-foreground py-4">
+                <p>No tasks for today. Enjoy your break!</p>
+                <Button variant="link" onClick={onAddTask}>Add your first task</Button>
+            </div>
           )}
         </div>
       </CardContent>
