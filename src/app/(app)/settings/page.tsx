@@ -24,12 +24,26 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { BellRing, User } from "lucide-react";
 
+const profileFormSchema = z.object({
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters.",
+  }),
+  picture: z.any().optional(),
+});
+
 const notificationsFormSchema = z.object({
   notifications: z.boolean().default(false),
   reminderTime: z.string().optional(),
 });
 
 export default function SettingsPage() {
+  const profileForm = useForm<z.infer<typeof profileFormSchema>>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues: {
+      name: "",
+    },
+  });
+
   const notificationsForm = useForm<z.infer<typeof notificationsFormSchema>>({
     resolver: zodResolver(notificationsFormSchema),
     defaultValues: {
@@ -37,6 +51,14 @@ export default function SettingsPage() {
       reminderTime: "09:00",
     },
   });
+
+  function onProfileSubmit(data: z.infer<typeof profileFormSchema>) {
+    toast({
+      title: "Profile settings saved",
+      description: "Your profile has been updated.",
+    });
+    console.log(data);
+  }
 
   function onNotificationsSubmit(data: z.infer<typeof notificationsFormSchema>) {
     toast({
@@ -55,6 +77,58 @@ export default function SettingsPage() {
         </p>
       </div>
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Profile
+          </CardTitle>
+          <CardDescription>
+            This is how others will see you on the site.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...profileForm}>
+            <form
+              onSubmit={profileForm.handleSubmit(onProfileSubmit)}
+              className="space-y-8"
+            >
+              <FormField
+                control={profileForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Display Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your name" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      This is your public display name.
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={profileForm.control}
+                name="picture"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Profile Picture</FormLabel>
+                    <FormControl>
+                      <Input type="file" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      Upload a new profile picture.
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+              <Button type="submit">Update profile</Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+      
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
