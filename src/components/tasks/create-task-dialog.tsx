@@ -68,6 +68,7 @@ export function CreateTaskDialog({
   subjects,
 }: CreateTaskDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDatePickerOpen, setDatePickerOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useUser();
   const firestore = useFirestore();
@@ -206,7 +207,7 @@ export function CreateTaskDialog({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Due Date</FormLabel>
-                    <Popover>
+                    <Popover open={isDatePickerOpen} onOpenChange={setDatePickerOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -229,7 +230,10 @@ export function CreateTaskDialog({
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setDatePickerOpen(false);
+                          }}
                           disabled={(date) =>
                             date < new Date(new Date().setHours(0,0,0,0))
                           }
