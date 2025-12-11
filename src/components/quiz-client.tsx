@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Loader2, Upload, BrainCircuit, Check, X, BookOpen, Lightbulb, Image as ImageIcon } from "lucide-react";
+import { Loader2, Upload, BrainCircuit, Check, X, BookOpen, Lightbulb, PartyPopper } from "lucide-react";
 import { generateMcq } from "@/app/(app)/quiz/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -199,6 +199,7 @@ export function QuizClient() {
 
   if (quizState === 'result') {
     const isPassed = score >= PASS_PERCENTAGE;
+    const isPerfect = score === 100;
     return (
       <Card>
         <CardHeader className="text-center">
@@ -207,10 +208,17 @@ export function QuizClient() {
             <p className={`text-5xl font-bold ${isPassed ? 'text-green-600' : 'text-red-600'}`}>{Math.round(score)}%</p>
         </CardHeader>
         <CardContent className="space-y-8">
-            <div className="flex items-center justify-center space-x-2">
-                {isPassed ? <Check className="w-8 h-8 text-green-600" /> : <X className="w-8 h-8 text-red-600" />}
-                <p className="text-lg font-medium">{isPassed ? "Congratulations, you passed!" : "You can do better. Keep studying!"}</p>
-            </div>
+            {isPerfect ? (
+                <div className="flex items-center justify-center space-x-2">
+                    <PartyPopper className="w-8 h-8 text-yellow-500 animate-bounce" />
+                    <p className="text-lg font-medium text-yellow-500">Perfect Score! Amazing work!</p>
+                </div>
+            ) : (
+                <div className="flex items-center justify-center space-x-2">
+                    {isPassed ? <Check className="w-8 h-8 text-green-600" /> : <X className="w-8 h-8 text-red-600" />}
+                    <p className="text-lg font-medium">{isPassed ? "Congratulations, you passed!" : "You can do better. Keep studying!"}</p>
+                </div>
+            )}
             
             <div className="space-y-6">
                 <h3 className="font-bold text-lg flex items-center"><BookOpen className="mr-2 h-5 w-5" />Review Your Answers</h3>
@@ -290,5 +298,3 @@ export function QuizClient() {
     </Card>
   );
 }
-
-    
