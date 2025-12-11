@@ -25,37 +25,36 @@ type SuggestedVideosProps = {
 };
 
 export function SuggestedVideos({ subjects }: SuggestedVideosProps) {
-  const [selectedSubject, setSelectedSubject] = useState(subjects[0] || "");
+  const [selectedSubject, setSelectedSubject] = useState("");
   const [suggestions, setSuggestions] = useState<SuggestVideosOutput | null>(
     null
   );
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (selectedSubject) {
-      fetchSuggestions();
-    }
-  }, [selectedSubject]);
-
-  const fetchSuggestions = async () => {
-    setIsLoading(true);
-    setSuggestions(null);
-    try {
-      const result = await suggestVideos({ subject: selectedSubject });
-      if (result) {
-        setSuggestions(result);
-      } else {
-        throw new Error("Failed to get video suggestions.");
+  const handleSubjectChange = async (subject: string) => {
+    setSelectedSubject(subject);
+    if (subject) {
+      setIsLoading(true);
+      setSuggestions(null);
+      try {
+        const result = await suggestVideos({ subject: subject });
+        if (result) {
+          setSuggestions(result);
+        } else {
+          throw new Error("Failed to get video suggestions.");
+        }
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "An error occurred",
+          description: "Could not fetch video suggestions. Please try again.",
+        });
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "An error occurred",
-        description: "Could not fetch video suggestions. Please try again.",
-      });
-    } finally {
-      setIsLoading(false);
+    } else {
+        setSuggestions(null);
     }
   };
 
@@ -70,7 +69,7 @@ export function SuggestedVideos({ subjects }: SuggestedVideosProps) {
           AI-powered video recommendations for your subjects.
         </CardDescription>
         <div className="pt-2">
-          <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+          <Select value={selectedSubject} onValueChange={handleSubjectChange}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select a subject" />
             </SelectTrigger>
@@ -89,7 +88,7 @@ export function SuggestedVideos({ subjects }: SuggestedVideosProps) {
           <div className="flex items-center justify-center h-40">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
-        ) : (
+        ) : suggestions && suggestions.videos.length > 0 ? (
           <div className="space-y-4">
             {suggestions?.videos.map((video, index) => (
               <div key={index} className="flex gap-4">
@@ -105,12 +104,11 @@ export function SuggestedVideos({ subjects }: SuggestedVideosProps) {
                 </div>
               </div>
             ))}
-            {!suggestions && !isLoading && (
-                 <p className="text-sm text-muted-foreground text-center h-40 flex items-center justify-center">
-                    Select a subject to see video recommendations.
-                </p>
-            )}
-          </div>
+            </div>
+        ) : (
+            <p className="text-sm text-muted-foreground text-center h-40 flex items-center justify-center">
+                Select a subject to see video recommendations.
+            </p>
         )}
       </CardContent>
     </Card>
