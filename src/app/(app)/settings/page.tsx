@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -41,7 +42,7 @@ export default function SettingsPage() {
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
       name: "",
-      picture: null,
+      picture: undefined,
     },
   });
 
@@ -112,11 +113,13 @@ export default function SettingsPage() {
               <FormField
                 control={profileForm.control}
                 name="picture"
-                render={({ field }) => (
+                render={({ field: { value, onChange, ...field } }) => (
                   <FormItem>
                     <FormLabel>Profile Picture</FormLabel>
                     <FormControl>
-                      <Input type="file" {...field} />
+                      <Input type="file" {...field} onChange={event => {
+                        onChange(event.target.files && event.target.files[0]);
+                      }} />
                     </FormControl>
                     <FormDescription>
                       Upload a new profile picture.
