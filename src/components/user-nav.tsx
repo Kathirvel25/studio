@@ -1,3 +1,4 @@
+
 "use client"
 
 import Image from "next/image";
@@ -48,7 +49,7 @@ export function UserNav() {
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-9 w-9">
                 {user?.photoURL ? (
-                    <AvatarImage src={user.photoURL} alt={user.displayName || "User Avatar"} />
+                    <AvatarImage src={user.photoURL} alt={user.displayName || "User Avatar"} key={user.photoURL} />
                 ) : userAvatar ? (
                     <Image 
                         src={userAvatar.imageUrl} 

@@ -23,7 +23,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
-import { BellRing, User } from "lucide-react";
+import { BellRing, Loader2, User } from "lucide-react";
+import { useAuth, useUser } from "@/firebase";
+import { updateProfile } from "firebase/auth";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { useEffect, useState } from "react";
 
 const profileFormSchema = z.object({
   name: z.string().min(2, {
@@ -38,11 +42,16 @@ const notificationsFormSchema = z.object({
 });
 
 export default function SettingsPage() {
+  const { user } = useUser();
+  const auth = useAuth();
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
+  const [isNotificationsLoading, setIsNotificationsLoading] = useState(false);
+
   const profileForm = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
       name: "",
-      picture: undefined,
+      picture: null,
     },
   });
 
@@ -54,20 +63,65 @@ export default function SettingsPage() {
     },
   });
 
-  function onProfileSubmit(data: z.infer<typeof profileFormSchema>) {
-    toast({
-      title: "Profile settings saved",
-      description: "Your profile has been updated.",
-    });
-    console.log(data);
+  useEffect(() => {
+    if (user) {
+      profileForm.reset({
+        name: user.displayName || "",
+      });
+    }
+  }, [user, profileForm]);
+
+
+  async function onProfileSubmit(data: z.infer<typeof profileFormSchema>) {
+    if (!user) {
+      toast({ variant: "destructive", title: "You must be logged in." });
+      return;
+    }
+    setIsProfileLoading(true);
+
+    try {
+      let photoURL = user.photoURL;
+      const pictureFile = data.picture?.[0];
+      
+      if (pictureFile) {
+        const storage = getStorage();
+        const storageRef = ref(storage, `profile-pictures/${user.uid}`);
+        await uploadBytes(storageRef, pictureFile);
+        photoURL = await getDownloadURL(storageRef);
+      }
+
+      await updateProfile(user, {
+        displayName: data.name,
+        photoURL: photoURL,
+      });
+
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been successfully updated.",
+      });
+    } catch (error: any) {
+      console.error("Profile update error:", error);
+      toast({
+        variant: "destructive",
+        title: "Update failed",
+        description: error.message || "Could not update profile. Please try again.",
+      });
+    } finally {
+      setIsProfileLoading(false);
+    }
   }
 
   function onNotificationsSubmit(data: z.infer<typeof notificationsFormSchema>) {
-    toast({
-      title: "Notification settings saved",
-      description: "Your notification preferences have been updated.",
-    });
-    console.log(data);
+    setIsNotificationsLoading(true);
+    // Simulate async operation
+    setTimeout(() => {
+      toast({
+        title: "Notification settings saved",
+        description: "Your notification preferences have been updated.",
+      });
+      console.log(data);
+      setIsNotificationsLoading(false);
+    }, 1000);
   }
 
   return (
@@ -102,7 +156,7 @@ export default function SettingsPage() {
                   <FormItem>
                     <FormLabel>Display Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Your name" {...field} />
+                      <Input placeholder="Your name" {...field} disabled={isProfileLoading} />
                     </FormControl>
                     <FormDescription>
                       This is your public display name.
@@ -113,13 +167,19 @@ export default function SettingsPage() {
               <FormField
                 control={profileForm.control}
                 name="picture"
-                render={({ field: { value, onChange, ...field } }) => (
+                render={({ field: { onChange, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel>Profile Picture</FormLabel>
                     <FormControl>
-                      <Input type="file" {...field} onChange={event => {
-                        onChange(event.target.files && event.target.files[0]);
-                      }} />
+                      <Input 
+                        type="file" 
+                        {...fieldProps} 
+                        onChange={event => {
+                          onChange(event.target.files);
+                        }} 
+                        accept="image/*"
+                        disabled={isProfileLoading}
+                      />
                     </FormControl>
                     <FormDescription>
                       Upload a new profile picture.
@@ -127,7 +187,10 @@ export default function SettingsPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Update profile</Button>
+              <Button type="submit" disabled={isProfileLoading}>
+                {isProfileLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Update profile
+              </Button>
             </form>
           </Form>
         </CardContent>
@@ -166,6 +229,7 @@ export default function SettingsPage() {
                       <Switch
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        disabled={isNotificationsLoading}
                       />
                     </FormControl>
                   </FormItem>
@@ -182,7 +246,7 @@ export default function SettingsPage() {
                         type="time"
                         className="w-[180px]"
                         {...field}
-                        disabled={!notificationsForm.watch("notifications")}
+                        disabled={!notificationsForm.watch("notifications") || isNotificationsLoading}
                       />
                     </FormControl>
                     <FormDescription>
@@ -191,7 +255,10 @@ export default function SettingsPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit" disabled={isNotificationsLoading}>
+                {isNotificationsLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Changes
+              </Button>
             </form>
           </Form>
         </CardContent>
