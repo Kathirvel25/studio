@@ -14,17 +14,42 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { CreditCard, LogOut, Settings, User } from "lucide-react";
+import { CreditCard, LogOut, Settings, User as UserIcon } from "lucide-react";
+import { useAuth, useUser } from "@/firebase";
+import { signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 export function UserNav() {
+    const { user } = useUser();
+    const auth = useAuth();
+    const router = useRouter();
     const userAvatar = PlaceHolderImages.find(p => p.id === 'user-avatar');
+
+    const handleLogout = () => {
+        signOut(auth).then(() => {
+            router.push("/");
+        });
+    };
+
+    const getInitials = () => {
+        if (user?.displayName) {
+            return user.displayName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        }
+        if (user?.email) {
+            return user.email.substring(0, 2).toUpperCase();
+        }
+        return 'U';
+    }
+
 
     return (
         <DropdownMenu>
         <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-9 w-9">
-                {userAvatar ? (
+                {user?.photoURL ? (
+                    <AvatarImage src={user.photoURL} alt={user.displayName || "User Avatar"} />
+                ) : userAvatar ? (
                     <Image 
                         src={userAvatar.imageUrl} 
                         alt={userAvatar.description} 
@@ -34,7 +59,7 @@ export function UserNav() {
                         className="rounded-full"
                     />
                 ) : (
-                    <AvatarFallback>JD</AvatarFallback>
+                    <AvatarFallback>{getInitials()}</AvatarFallback>
                 )}
             </Avatar>
             </Button>
@@ -42,9 +67,9 @@ export function UserNav() {
         <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">Jane Doe</p>
+                <p className="text-sm font-medium leading-none">{user?.displayName || "User"}</p>
                 <p className="text-xs leading-none text-muted-foreground">
-                jane.doe@example.com
+                {user?.email || "No email provided"}
                 </p>
             </div>
             </DropdownMenuLabel>
@@ -52,7 +77,7 @@ export function UserNav() {
             <DropdownMenuGroup>
               <Link href="/settings">
                 <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
+                    <UserIcon className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                 </DropdownMenuItem>
               </Link>
@@ -70,9 +95,9 @@ export function UserNav() {
               </Link>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Log out</span>
+            <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
             </DropdownMenuItem>
         </DropdownMenuContent>
         </DropdownMenu>
