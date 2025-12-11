@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { streak, weeklyProgress, progressChartData, todaysTasks, upcomingDeadlines, learningSubjects } from "@/lib/data";
-import { XPCard } from "@/components/gamification/xp-card";
+import { XPCard } from "../gamification/xp-card";
 
 export default function DashboardPage() {
   const userStats = {

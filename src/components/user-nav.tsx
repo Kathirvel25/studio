@@ -19,12 +19,14 @@ import { CreditCard, LogOut, Settings, User as UserIcon } from "lucide-react";
 import { useAuth, useUser } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import { LevelBadge } from "./gamification/level-badge";
 
 export function UserNav() {
     const { user } = useUser();
     const auth = useAuth();
     const router = useRouter();
     const userAvatar = PlaceHolderImages.find(p => p.id === 'user-avatar');
+    const userLevel = 5; // Placeholder
 
     const handleLogout = () => {
         signOut(auth).then(() => {
@@ -63,6 +65,7 @@ export function UserNav() {
                     <AvatarFallback>{getInitials()}</AvatarFallback>
                 )}
             </Avatar>
+            <LevelBadge level={userLevel} />
             </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>

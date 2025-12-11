@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -308,6 +309,40 @@
         "description",
         "awardedDate"
       ]
+    },
+    "Stats": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Stats",
+      "type": "object",
+      "description": "Represents a user's gamification statistics.",
+      "properties": {
+        "id": { "type": "string" },
+        "userProfileId": { "type": "string" },
+        "totalXP": { "type": "number" },
+        "currentLevel": { "type": "number" },
+        "badges": { "type": "array", "items": { "type": "string" } },
+        "tasksCompleted": { "type": "number" },
+        "streak": { "type": "number" },
+        "weeklyStudyHours": { "type": "number" }
+      },
+      "required": ["id", "userProfileId", "totalXP", "currentLevel"]
+    },
+    "XpRule": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "XpRule",
+        "type": "object",
+        "description": "Defines the XP awarded for different actions.",
+        "properties": {
+            "id": { "type": "string" },
+            "taskCompleted": { "type": "number" },
+            "dailyStreak": { "type": "number" },
+            "weeklyGoal": { "type": "number" },
+            "studySession": { "type": "number" },
+            "chapterCompleted": { "type": "number" },
+            "assignmentOnTime": { "type": "number" },
+            "sevenDayConsistency": { "type": "number" }
+        },
+        "required": ["id"]
     }
   },
   "auth": {
@@ -476,6 +511,29 @@
               "description": "The unique identifier for the badge."
             }
           ]
+        }
+      },
+      {
+        "path": "/users/{userId}/stats/{statId}",
+        "definition": {
+          "entityName": "Stats",
+          "schema": { "$ref": "#/backend/entities/Stats" },
+          "description": "Stores a user's gamification statistics.",
+          "params": [
+            { "name": "userId", "description": "The unique identifier for the user." },
+            { "name": "statId", "description": "The unique identifier for the stat document, typically a single document per user." }
+          ]
+        }
+      },
+      {
+        "path": "/xpRules/{ruleId}",
+        "definition": {
+            "entityName": "XpRule",
+            "schema": { "$ref": "#/backend/entities/XpRule" },
+            "description": "Stores the configurable rules for awarding XP. This collection is typically read-only for users.",
+            "params": [
+                { "name": "ruleId", "description": "The unique identifier for the XP rule set, often a single document like 'default'." }
+            ]
         }
       }
     ],
