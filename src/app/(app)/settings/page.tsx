@@ -41,6 +41,7 @@ export default function SettingsPage() {
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
       name: "",
+      picture: null,
     },
   });
 
