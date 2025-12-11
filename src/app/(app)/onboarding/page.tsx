@@ -42,6 +42,8 @@ import {
   BookMarked,
   GraduationCap,
   ChevronLeft,
+  PlusCircle,
+  XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -89,7 +91,7 @@ export default function OnboardingPage() {
       classYear: "",
       department: "",
       institution: "",
-      subjects: [],
+      subjects: [{ name: "", difficulty: "Medium", priority: "Medium" }],
     },
   });
 
@@ -320,7 +322,94 @@ export default function OnboardingPage() {
                       />
                     </div>
                   )}
-                  
+                  {step === 3 && (
+                    <div className="space-y-4">
+                      <div>
+                        {fields.map((field, index) => (
+                          <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-4 p-3 border rounded-lg relative">
+                             <FormField
+                              control={form.control}
+                              name={`subjects.${index}.name`}
+                              render={({ field }) => (
+                                <FormItem className="md:col-span-4">
+                                  <FormLabel>Subject Name</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="e.g., Physics" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`subjects.${index}.difficulty`}
+                              render={({ field }) => (
+                                <FormItem className="md:col-span-2">
+                                  <FormLabel>Difficulty</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select..." />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="Easy">Easy</SelectItem>
+                                      <SelectItem value="Medium">Medium</SelectItem>
+                                      <SelectItem value="Hard">Hard</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name={`subjects.${index}.priority`}
+                              render={({ field }) => (
+                                <FormItem className="md:col-span-2">
+                                  <FormLabel>Priority</FormLabel>
+                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select..." />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="Low">Low</SelectItem>
+                                      <SelectItem value="Medium">Medium</SelectItem>
+                                      <SelectItem value="High">High</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                             {fields.length > 1 && (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute -top-2 -right-2 h-6 w-6"
+                                    onClick={() => remove(index)}
+                                >
+                                    <XCircle className="h-5 w-5 text-red-500" />
+                                </Button>
+                             )}
+                          </div>
+                        ))}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => append({ name: "", difficulty: "Medium", priority: "Medium" })}
+                      >
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Subject
+                      </Button>
+                      <FormMessage>{form.formState.errors.subjects?.message}</FormMessage>
+                    </div>
+                  )}
                 </motion.div>
               </AnimatePresence>
             </CardContent>
@@ -346,3 +435,5 @@ export default function OnboardingPage() {
     </div>
   );
 }
+
+    
