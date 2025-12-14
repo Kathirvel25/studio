@@ -96,7 +96,7 @@ export function CreateTaskDialog({
         userProfileId: user.uid,
         title: values.title,
         type: values.type,
-        subject: values.subject,
+        subject: values.subject || null,
         dueDate: Timestamp.fromDate(dueDate),
         priority: values.priority,
         estimatedTime: values.estimatedTime,
