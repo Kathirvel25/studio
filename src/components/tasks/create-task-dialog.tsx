@@ -70,7 +70,7 @@ export function CreateTaskDialog({
       priority: 'Medium',
       estimatedTime: '' as any,
       description: '',
-      subject: undefined,
+      subject: '',
       daysUntilDue: '' as any,
     },
   });
@@ -179,18 +179,9 @@ export function CreateTaskDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Subject</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select subject" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {subjects.map(subject => (
-                            <SelectItem key={subject} value={subject}>{subject}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                        <Input placeholder="e.g., Physics" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
