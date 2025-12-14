@@ -31,15 +31,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { CalendarIcon, Loader2 } from 'lucide-react';
-import { Calendar } from '@/components/ui/calendar';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection, Timestamp } from 'firebase/firestore';
@@ -48,9 +40,7 @@ const taskSchema = z.object({
   title: z.string().min(1, 'Title is required.'),
   type: z.enum(['Assignment', 'Exam', 'Project', 'Study Session', 'Other']),
   subject: z.string().optional(),
-  dueDate: z.date({
-    required_error: 'A due date is required.',
-  }),
+  daysUntilDue: z.coerce.number().min(0, 'Please enter a valid number of days.'),
   priority: z.enum(['Low', 'Medium', 'High']).default('Medium'),
   estimatedTime: z.coerce.number().optional(),
   description: z.string().optional(),
@@ -68,7 +58,6 @@ export function CreateTaskDialog({
   subjects,
 }: CreateTaskDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDatePickerOpen, setDatePickerOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useUser();
   const firestore = useFirestore();
@@ -82,6 +71,7 @@ export function CreateTaskDialog({
       estimatedTime: '' as any,
       description: '',
       subject: undefined,
+      daysUntilDue: '' as any,
     },
   });
 
@@ -98,13 +88,16 @@ export function CreateTaskDialog({
 
     try {
       const tasksCollectionRef = collection(firestore, `users/${user.uid}/tasks`);
+      
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + values.daysUntilDue);
 
       addDocumentNonBlocking(tasksCollectionRef, {
         userProfileId: user.uid,
         title: values.title,
         type: values.type,
         subject: values.subject,
-        dueDate: Timestamp.fromDate(values.dueDate),
+        dueDate: Timestamp.fromDate(dueDate),
         priority: values.priority,
         estimatedTime: values.estimatedTime,
         description: values.description,
@@ -205,44 +198,13 @@ export function CreateTaskDialog({
             </div>
              <FormField
                 control={form.control}
-                name="dueDate"
+                name="daysUntilDue"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Due Date</FormLabel>
-                    <Popover open={isDatePickerOpen} onOpenChange={setDatePickerOpen}>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={(date) => {
-                            field.onChange(date);
-                            setDatePickerOpen(false);
-                          }}
-                          disabled={(date) =>
-                            date < new Date(new Date().setHours(0,0,0,0))
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                  <FormItem>
+                    <FormLabel>Days Until Due</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="e.g., 7" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
