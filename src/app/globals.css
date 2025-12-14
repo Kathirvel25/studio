@@ -4,31 +4,31 @@
 
 @layer base {
   :root {
-    --background: 220 20% 98%; /* Brighter Almost White */
+    --background: 210 29% 97%; /* Light Gray (#F0F4F7) */
     --foreground: 220 10% 20%;
     --card: 220 13% 100%;
     --card-foreground: 220 10% 20%;
     --popover: 220 13% 100%;
     --popover-foreground: 220 10% 20%;
-    --primary: 210 90% 60%; /* Vibrant Blue */
-    --primary-foreground: 210 40% 98%;
+    --primary: 202 68% 84%; /* Soft Blue (#A0D2EB) */
+    --primary-foreground: 220 10% 20%;
     --secondary: 220 15% 94%;
     --secondary-foreground: 220 10% 20%;
     --muted: 220 15% 94%;
     --muted-foreground: 220 10% 45%;
-    --accent: 250 80% 70%; /* Punchy Violet */
+    --accent: 261 44% 80%; /* Muted Purple (#B39DDB) */
     --accent-foreground: 220 10% 20%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 220 15% 91%;
     --input: 220 15% 91%;
-    --ring: 210 90% 60%;
+    --ring: 202 68% 84%;
     --radius: 0.75rem;
-    --chart-1: 210 90% 60%;
-    --chart-2: 250 80% 70%;
-    --chart-3: 210 90% 70%;
-    --chart-4: 250 80% 80%;
-    --chart-5: 210 90% 50%;
+    --chart-1: 202 68% 84%;
+    --chart-2: 261 44% 80%;
+    --chart-3: 202 68% 74%;
+    --chart-4: 261 44% 70%;
+    --chart-5: 202 68% 64%;
 
     /* Sidebar Light */
     --sidebar-background: 220 10% 20%;
@@ -48,19 +48,19 @@
     --card-foreground: 210 40% 98%;
     --popover: 220 10% 15%;
     --popover-foreground: 210 40% 98%;
-    --primary: 210 90% 60%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 202 68% 84%;
+    --primary-foreground: 220 10% 20%;
     --secondary: 220 10% 20%;
     --secondary-foreground: 210 40% 98%;
     --muted: 220 10% 20%;
     --muted-foreground: 220 10% 65%;
-    --accent: 250 80% 70%;
+    --accent: 261 44% 80%;
     --accent-foreground: 220 10% 20%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     --border: 220 10% 25%;
     --input: 220 10% 25%;
-    --ring: 210 90% 60%;
+    --ring: 202 68% 84%;
 
     /* Sidebar Dark */
     --sidebar-background: 220 10% 15%;

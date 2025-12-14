@@ -33,7 +33,7 @@ export function XPCard({ stats }: XPCardProps) {
 
 
   return (
-    <Card className="transition-transform transform hover:scale-105">
+    <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium flex items-center justify-between">
             <span>Level {stats.currentLevel}</span>

@@ -3,6 +3,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { StreakCounter } from "@/components/dashboard/streak-counter";
 import { TodaysTasks } from "@/components/dashboard/todays-tasks";
 import { ProgressOverviewChart } from "@/components/dashboard/progress-overview-chart";
@@ -61,12 +62,12 @@ export default function DashboardPage() {
   
 
   const userStats = {
-    totalXP: userProfile?.totalXP || 0,
-    currentLevel: userProfile?.currentLevel || 1,
+    totalXP: (userProfile as any)?.totalXP || 0,
+    currentLevel: (userProfile as any)?.currentLevel || 1,
     xpToNextLevel: 500, // This could be dynamic later
   };
 
-  const streak = userProfile?.streak || 0;
+  const streak = (userProfile as any)?.streak || 0;
   
   const progressChartData = [
     { day: 'Mon', hours: 2.5 },
@@ -82,7 +83,22 @@ export default function DashboardPage() {
     return <div className="flex h-screen w-full items-center justify-center">Loading dashboard...</div>
   }
 
-  const learningSubjects = userProfile?.subjects?.map((s: any) => s.name) || [];
+  const learningSubjects = (userProfile as any)?.subjects?.map((s: any) => s.name) || [];
+  
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 },
+  };
 
   return (
     <>
@@ -90,30 +106,39 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StreakCounter streak={streak} />
-        <XPCard stats={userStats} />
-        <Card className="transition-transform transform hover:scale-105">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Tasks Completed</CardTitle>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="h-4 w-4 text-muted-foreground"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold">{(todaysTasks || []).filter(t => t.isCompleted).length} / {(todaysTasks || []).length}</div>
-                <p className="text-xs text-muted-foreground">today</p>
-            </CardContent>
-        </Card>
-        <Card className="transition-transform transform hover:scale-105">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Upcoming Deadlines</CardTitle>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="h-4 w-4 text-muted-foreground"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>
-            </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold">{(upcomingDeadlines || []).length}</div>
-                <p className="text-xs text-muted-foreground">in total</p>
-            </CardContent>
-        </Card>
-      </div>
+      <motion.div 
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div variants={itemVariants} className="transition-transform transform hover:scale-105"><StreakCounter streak={streak} /></motion.div>
+        <motion.div variants={itemVariants} className="transition-transform transform hover:scale-105"><XPCard stats={userStats} /></motion.div>
+        <motion.div variants={itemVariants} className="transition-transform transform hover:scale-105">
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Tasks Completed</CardTitle>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="h-4 w-4 text-muted-foreground"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{(todaysTasks || []).filter(t => t.isCompleted).length} / {(todaysTasks || []).length}</div>
+                    <p className="text-xs text-muted-foreground">today</p>
+                </CardContent>
+            </Card>
+        </motion.div>
+        <motion.div variants={itemVariants} className="transition-transform transform hover:scale-105">
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Upcoming Deadlines</CardTitle>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="h-4 w-4 text-muted-foreground"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{(upcomingDeadlines || []).length}</div>
+                    <p className="text-xs text-muted-foreground">in total</p>
+                </CardContent>
+            </Card>
+        </motion.div>
+      </motion.div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-7">
         <div className="lg:col-span-4">
           <ProgressOverviewChart data={progressChartData} />
