@@ -1,9 +1,7 @@
 'use server';
 
-import {
-  textToSpeech,
-  type TextToSpeechOutput,
-} from '@/ai/flows/text-to-speech';
+import { textToSpeech } from '@/ai/flows/text-to-speech';
+import { type TextToSpeechOutput } from '@/ai/flows/text-to-speech.types';
 
 export async function generateAudio(
   text: string
