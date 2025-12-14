@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link";
@@ -71,7 +72,7 @@ export function AppSidebar() {
                     className="justify-start"
                 >
                     <settingsMenuItem.icon className="h-5 w-5" />
-                    <span>{item.label}</span>
+                    <span>{settingsMenuItem.label}</span>
                 </SidebarMenuButton>
                 </Link>
             </SidebarMenuItem>
