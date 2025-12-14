@@ -97,7 +97,7 @@ export function CreateTaskDialog({
     try {
       const tasksCollectionRef = collection(firestore, `users/${user.uid}/tasks`);
 
-      await addDocumentNonBlocking(tasksCollectionRef, {
+      addDocumentNonBlocking(tasksCollectionRef, {
         userProfileId: user.uid,
         title: values.title,
         type: values.type,
