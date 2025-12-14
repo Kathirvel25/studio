@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BrainCircuit, Calendar, BookCopy, Flame, LayoutDashboard, Settings, FileText, Youtube, HelpCircle } from "lucide-react";
+import { BrainCircuit, Calendar, BookCopy, Flame, LayoutDashboard, Settings, FileText, Youtube, HelpCircle, BookHeadphones } from "lucide-react";
 
 import {
   Sidebar,
@@ -20,6 +20,7 @@ const menuItems = [
   { href: "/streaks", label: "Streaks", icon: Flame },
   { href: "/summarizer", label: "Summarizer", icon: FileText },
   { href: "/quiz", label: "Quiz", icon: HelpCircle },
+  { href: "/reader", label: "Reader", icon: BookHeadphones },
   { href: "/ai-feedback", label: "AI Feedback", icon: BrainCircuit },
   { href: "/resources", label: "Resources", icon: Youtube },
 ];
@@ -70,7 +71,7 @@ export function AppSidebar() {
                     className="justify-start"
                 >
                     <settingsMenuItem.icon className="h-5 w-5" />
-                    <span>{settingsMenuItem.label}</span>
+                    <span>{item.label}</span>
                 </SidebarMenuButton>
                 </Link>
             </SidebarMenuItem>
