@@ -232,8 +232,10 @@ export function CreateTaskDialog({
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={(date) => {
-                            field.onChange(date);
+                          onSelect={(date: Date | undefined) => {
+                            if (date) {
+                              field.onChange(date);
+                            }
                             setDatePickerOpen(false);
                           }}
                           disabled={(date) =>
