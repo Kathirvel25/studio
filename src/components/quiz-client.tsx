@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef } from "react";
@@ -13,6 +12,8 @@ import type { GenerateMcqOutput } from "@/ai/flows/generate-mcq";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
 import Image from "next/image";
+import { Input } from "./ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
 type QuizState = 'idle' | 'loading' | 'quiz' | 'result';
 type Answer = { questionIndex: number; selectedOption: number };
@@ -22,12 +23,15 @@ const PASS_PERCENTAGE = 70;
 export function QuizClient() {
   const [textContent, setTextContent] = useState("");
   const [imageDataUri, setImageDataUri] = useState<string | null>(null);
+  const [topic, setTopic] = useState("");
+  const [numQuestions, setNumQuestions] = useState("5");
   const [quiz, setQuiz] = useState<GenerateMcqOutput | null>(null);
   const [quizState, setQuizState] = useState<QuizState>('idle');
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [score, setScore] = useState(0);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [activeTab, setActiveTab] = useState("paste");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -76,14 +80,15 @@ export function QuizClient() {
   };
 
   const handleGenerateQuiz = async () => {
-    if (!textContent && !imageDataUri) {
-      toast({
-        variant: "destructive",
-        title: "No content",
-        description: "Please paste text, an image, or upload a file to generate a quiz.",
-      });
-      return;
+    if (activeTab === "paste" && !textContent && !imageDataUri) {
+        toast({ variant: "destructive", title: "No content", description: "Please paste text, an image, or upload a file." });
+        return;
     }
+    if (activeTab === "ai" && !topic) {
+        toast({ variant: "destructive", title: "No Topic", description: "Please enter a topic to generate a quiz." });
+        return;
+    }
+
 
     setQuizState('loading');
     setQuiz(null);
@@ -91,7 +96,11 @@ export function QuizClient() {
     setScore(0);
 
     try {
-      const result = await generateMcq({ documentContent: textContent, imageDataUri: imageDataUri || undefined });
+      const input = activeTab === 'ai' 
+        ? { topic, numQuestions: parseInt(numQuestions) } 
+        : { documentContent: textContent, imageDataUri: imageDataUri || undefined, numQuestions: parseInt(numQuestions) };
+      
+      const result = await generateMcq(input);
       if (result && result.questions.length > 0) {
         setQuiz(result);
         setQuizState('quiz');
@@ -145,6 +154,7 @@ export function QuizClient() {
     setQuiz(null);
     setTextContent('');
     setImageDataUri(null);
+    setTopic('');
     setAnswers([]);
     setScore(0);
     if(fileInputRef.current) {
@@ -255,15 +265,16 @@ export function QuizClient() {
     <Card>
       <CardHeader>
         <CardTitle>Create Your Quiz</CardTitle>
-        <CardDescription>Paste your study notes or upload a file.</CardDescription>
+        <CardDescription>Use your notes, an image, or let AI generate a quiz from a topic.</CardDescription>
       </CardHeader>
       <CardContent>
-          <Tabs defaultValue="text">
-              <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="text">Paste Content</TabsTrigger>
+          <Tabs defaultValue="paste" onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="paste">Paste Content</TabsTrigger>
                   <TabsTrigger value="upload">Upload File</TabsTrigger>
+                  <TabsTrigger value="ai">Generate with AI</TabsTrigger>
               </TabsList>
-              <TabsContent value="text" className="mt-4">
+              <TabsContent value="paste" className="mt-4">
                   <Textarea 
                       placeholder="Paste your study notes or an image here..."
                       value={textContent}
@@ -284,16 +295,40 @@ export function QuizClient() {
                    )}
               </TabsContent>
               <TabsContent value="upload" className="mt-4">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 p-4 border-2 border-dashed rounded-md">
                       <Upload className="h-5 w-5 text-muted-foreground" />
                       <input type="file" accept=".txt,image/*" onChange={handleFileChange} ref={fileInputRef} className="max-w-sm text-sm"/>
                   </div>
               </TabsContent>
+              <TabsContent value="ai" className="mt-4 space-y-4">
+                <Input 
+                    placeholder="Enter a topic, e.g., 'Quantum Mechanics'"
+                    value={topic}
+                    onChange={(e) => setTopic(e.target.value)}
+                />
+              </TabsContent>
           </Tabs>
-          <Button onClick={handleGenerateQuiz} disabled={!textContent && !imageDataUri} className="mt-4 w-full">
-              <BrainCircuit className="mr-2 h-4 w-4" />
-              Generate Quiz
-          </Button>
+
+          <div className="mt-4 flex items-center gap-4">
+            <div className="flex-grow">
+                <Label htmlFor="num-questions">Number of Questions</Label>
+                <Select value={numQuestions} onValueChange={setNumQuestions}>
+                    <SelectTrigger id="num-questions" className="w-[120px]">
+                        <SelectValue placeholder="Number of questions" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="5">5</SelectItem>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="15">15</SelectItem>
+                        <SelectItem value="20">20</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            <Button onClick={handleGenerateQuiz} className="self-end" disabled={quizState === 'loading'}>
+                <BrainCircuit className="mr-2 h-4 w-4" />
+                Generate Quiz
+            </Button>
+          </div>
       </CardContent>
     </Card>
   );

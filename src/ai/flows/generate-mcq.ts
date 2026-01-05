@@ -1,10 +1,9 @@
-
 'use server';
 
 /**
- * @fileOverview A flow for generating multiple-choice questions from a document or an image.
+ * @fileOverview A flow for generating multiple-choice questions from a document, an image, or a topic.
  *
- * - generateMcq - A function that takes document content and/or an image and returns a set of MCQs.
+ * - generateMcq - A function that takes document content, an image, or a topic and returns a set of MCQs.
  * - GenerateMcqInput - The input type for the generateMcq function.
  * - GenerateMcqOutput - The return type for the generateMcq function.
  */
@@ -23,6 +22,14 @@ const GenerateMcqInputSchema = z.object({
     .describe(
       "An image to generate questions from, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
+  topic: z
+    .string()
+    .optional()
+    .describe('A topic to generate questions about.'),
+  numQuestions: z
+    .number()
+    .default(5)
+    .describe('The number of questions to generate.'),
 });
 export type GenerateMcqInput = z.infer<typeof GenerateMcqInputSchema>;
 
@@ -37,7 +44,7 @@ const McqQuestionSchema = z.object({
 const GenerateMcqOutputSchema = z.object({
   questions: z
     .array(McqQuestionSchema)
-    .describe('A list of 5 multiple-choice questions.'),
+    .describe('A list of multiple-choice questions.'),
 });
 export type GenerateMcqOutput = z.infer<typeof GenerateMcqOutputSchema>;
 
@@ -51,7 +58,7 @@ const prompt = ai.definePrompt({
   name: 'generateMcqPrompt',
   input: { schema: GenerateMcqInputSchema },
   output: { schema: GenerateMcqOutputSchema },
-  prompt: `You are an expert teacher creating a quiz for a student. Based on the document and/or image provided, generate 5 multiple-choice questions to test their understanding. Each question should have 4 options.
+  prompt: `You are an expert teacher creating a quiz for a student. Based on the document, image, or topic provided, generate {{{numQuestions}}} multiple-choice questions to test their understanding. Each question should have 4 options.
 
 {{#if documentContent}}
 Document Content:
@@ -63,7 +70,12 @@ Image Content:
 {{media url=imageDataUri}}
 {{/if}}
 
-Please generate 5 questions. For each question, provide the question text, 4 options, and the index of the correct answer.`,
+{{#if topic}}
+Topic:
+{{{topic}}}
+{{/if}}
+
+Please generate {{{numQuestions}}} questions. For each question, provide the question text, 4 options, and the index of the correct answer.`,
 });
 
 const generateMcqFlow = ai.defineFlow(
@@ -78,5 +90,3 @@ const generateMcqFlow = ai.defineFlow(
     return output!;
   }
 );
-
-    
