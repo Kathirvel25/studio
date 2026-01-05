@@ -2,6 +2,8 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/com
 import { Flame, Star, Zap, Award } from "lucide-react";
 import { streak } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
+import Image from "next/image";
 
 const achievements = [
     { icon: Star, title: "7-Day Streak", description: "Maintain a study streak for 7 consecutive days.", unlocked: true },
@@ -16,10 +18,27 @@ export default function StreaksPage() {
   const longestStreak = 25; // Placeholder
   const unlockedAchievements = achievements.filter(a => a.unlocked).length;
   const totalAchievements = achievements.length;
+  const image = PlaceHolderImages.find(p => p.id === 'streaks-hero');
 
   return (
     <div className="space-y-4 p-4 md:p-8">
-      <h2 className="text-3xl font-bold tracking-tight">Streaks & Achievements</h2>
+      
+      {image && (
+        <Card className="overflow-hidden mb-4">
+            <div className="relative h-48 w-full">
+                <Image 
+                    src={image.imageUrl}
+                    alt={image.description}
+                    fill
+                    className="object-cover"
+                    data-ai-hint={image.imageHint}
+                />
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <h2 className="text-4xl font-bold tracking-tight text-white">Streaks & Achievements</h2>
+                </div>
+            </div>
+        </Card>
+      )}
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card className="bg-primary text-primary-foreground">

@@ -5,6 +5,36 @@
       "description": "A placeholder for a user's avatar.",
       "imageUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjUzNDA5MTh8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person portrait"
+    },
+    {
+      "id": "billing-hero",
+      "description": "An abstract image representing finance and billing.",
+      "imageUrl": "https://images.unsplash.com/photo-1669951584605-4deba095a87f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxmaW5hbmNlJTIwYWJzdHJhY3R8ZW58MHx8fHwxNzY3NTk2MzUxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "finance abstract"
+    },
+    {
+      "id": "resources-hero",
+      "description": "An image of books and study materials.",
+      "imageUrl": "https://images.unsplash.com/photo-1709924168698-620ea32c3488?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxib29rcyUyMGxpYnJhcnl8ZW58MHx8fHwxNzY3NTQ2NjQ0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "books library"
+    },
+    {
+      "id": "syllabus-hero",
+      "description": "An image of a person planning on a whiteboard.",
+      "imageUrl": "https://images.unsplash.com/photo-1677506048148-0c914dd8197b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwbGFubmluZyUyMHdoaXRlYm9hcmR8ZW58MHx8fHwxNzY3NjAxMzQzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "planning whiteboard"
+    },
+    {
+      "id": "streaks-hero",
+      "description": "An image representing achievement and goals.",
+      "imageUrl": "https://images.unsplash.com/photo-1558169528-3430bc2f7f25?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzdWNjZXNzJTIwbW91bnRhaW58ZW58MHx8fHwxNzY3NjAxMzQzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "success mountain"
+    },
+    {
+      "id": "dashboard-welcome",
+      "description": "A welcoming image for the dashboard.",
+      "imageUrl": "https://images.unsplash.com/photo-1707777935170-bb23db1dfe12?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3ZWxjb21lJTIwc3VucmlzZXxlbnwwfHx8fDE3Njc2MDEzNDN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "welcome sunrise"
     }
   ]
 }

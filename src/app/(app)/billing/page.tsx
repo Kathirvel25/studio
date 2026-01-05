@@ -1,23 +1,38 @@
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { CreditCard } from "lucide-react";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
+import Image from "next/image";
 
 export default function BillingPage() {
+  const image = PlaceHolderImages.find(p => p.id === 'billing-hero');
+
   return (
     <div className="space-y-4 p-4 md:p-8">
       <h2 className="text-3xl font-bold tracking-tight">Billing</h2>
-      <Card className="flex flex-col items-center justify-center text-center p-8 min-h-[400px]">
-        <CreditCard className="w-16 h-16 text-muted-foreground mb-4" />
-        <CardHeader>
-          <CardTitle>Billing Page Coming Soon</CardTitle>
-          <CardDescription>
-            Manage your subscription and payment methods here.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            You'll be able to view your invoices, upgrade or downgrade your plan, and update your payment details.
-          </p>
-        </CardContent>
+      <Card className="overflow-hidden">
+        {image && (
+          <div className="relative h-64 w-full">
+            <Image 
+              src={image.imageUrl}
+              alt={image.description}
+              fill
+              className="object-cover"
+              data-ai-hint={image.imageHint}
+            />
+          </div>
+        )}
+        <div className="p-6">
+          <CardHeader className="p-0">
+            <CardTitle>Billing Page Coming Soon</CardTitle>
+            <CardDescription className="pt-2">
+              Manage your subscription and payment methods here.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-0 pt-4">
+            <p className="text-sm text-muted-foreground">
+              You'll be able to view your invoices, upgrade or downgrade your plan, and update your payment details.
+            </p>
+          </CardContent>
+        </div>
       </Card>
     </div>
   );
