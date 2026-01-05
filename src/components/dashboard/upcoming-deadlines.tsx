@@ -1,4 +1,5 @@
 
+
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -83,8 +84,8 @@ export function UpcomingDeadlines({ deadlines, onAddTask }: UpcomingDeadlinesPro
                         <Button variant="ghost" size="icon" onClick={() => setEditingTask(deadline)}>
                             <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(deadline.id)} className="text-red-500 hover:text-red-600">
-                          <Trash2 className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-600">
+                          <Trash2 className="h-4 w-4" onClick={() => handleDelete(deadline.id)} />
                         </Button>
                       </TableCell>
                     </TableRow>
