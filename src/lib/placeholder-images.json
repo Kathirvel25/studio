@@ -35,6 +35,12 @@
       "description": "A welcoming image for the dashboard.",
       "imageUrl": "https://images.unsplash.com/photo-1707777935170-bb23db1dfe12?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3ZWxjb21lJTIwc3VucmlzZXxlbnwwfHx8fDE3Njc2MDEzNDN8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "welcome sunrise"
+    },
+    {
+      "id": "quiz-hero",
+      "description": "A colorful abstract image representing questions and knowledge.",
+      "imageUrl": "https://images.unsplash.com/photo-1599658880115-a22de4c13e31?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxxdWl6JTIwYWJzdHJhY3R8ZW58MHx8fHwxNzY4MjM0NTM0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "quiz abstract"
     }
   ]
 }

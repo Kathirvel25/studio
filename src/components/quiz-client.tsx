@@ -14,6 +14,7 @@ import { Label } from "./ui/label";
 import Image from "next/image";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { motion } from "framer-motion";
 
 type QuizState = 'idle' | 'loading' | 'quiz' | 'result';
 type Answer = { questionIndex: number; selectedOption: number };
@@ -163,7 +164,7 @@ export function QuizClient() {
   };
   
   const getOptionLabelClassName = (isCorrect: boolean, isSelected: boolean, isSubmitted: boolean) => {
-    if (!isSubmitted) return '';
+    if (!isSubmitted) return 'cursor-pointer';
     if (isCorrect) return 'text-green-600 font-bold';
     if (isSelected && !isCorrect) return 'text-red-600 line-through';
     return 'text-muted-foreground';
@@ -180,30 +181,32 @@ export function QuizClient() {
 
   if (quizState === 'quiz' && quiz) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Quiz Time!</CardTitle>
-          <CardDescription>Answer the questions below to test your knowledge.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-8">
-          {quiz.questions.map((q, qIndex) => (
-            <div key={qIndex}>
-              <p className="font-semibold mb-4">{qIndex + 1}. {q.question}</p>
-              <RadioGroup onValueChange={(value) => handleAnswerChange(qIndex, parseInt(value))}>
-                {q.options.map((option, oIndex) => (
-                  <div key={oIndex} className="flex items-center space-x-2">
-                    <RadioGroupItem value={oIndex.toString()} id={`q${qIndex}o${oIndex}`} />
-                    <Label htmlFor={`q${qIndex}o${oIndex}`}>{option}</Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-          ))}
-          <Button onClick={handleSubmitQuiz} className="w-full">
-            Submit Quiz
-          </Button>
-        </CardContent>
-      </Card>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Quiz Time!</CardTitle>
+            <CardDescription>Answer the questions below to test your knowledge.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-8">
+            {quiz.questions.map((q, qIndex) => (
+              <motion.div key={qIndex} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: qIndex * 0.1 }}>
+                <p className="font-semibold mb-4">{qIndex + 1}. {q.question}</p>
+                <RadioGroup onValueChange={(value) => handleAnswerChange(qIndex, parseInt(value))}>
+                  {q.options.map((option, oIndex) => (
+                    <div key={oIndex} className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted transition-colors">
+                      <RadioGroupItem value={oIndex.toString()} id={`q${qIndex}o${oIndex}`} />
+                      <Label htmlFor={`q${qIndex}o${oIndex}`} className="cursor-pointer flex-1">{option}</Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </motion.div>
+            ))}
+            <Button onClick={handleSubmitQuiz} className="w-full">
+              Submit Quiz
+            </Button>
+          </CardContent>
+        </Card>
+      </motion.div>
     );
   }
 
@@ -211,125 +214,126 @@ export function QuizClient() {
     const isPassed = score >= PASS_PERCENTAGE;
     const isPerfect = score === 100;
     return (
-      <Card>
-        <CardHeader className="text-center">
-            <CardTitle className="text-3xl">Quiz Complete!</CardTitle>
-            <CardDescription>You scored</CardDescription>
-            <p className={`text-5xl font-bold ${isPassed ? 'text-green-600' : 'text-red-600'}`}>{Math.round(score)}%</p>
-        </CardHeader>
-        <CardContent className="space-y-8">
-            {isPerfect ? (
-                <div className="flex items-center justify-center space-x-2">
-                    <PartyPopper className="w-8 h-8 text-yellow-500 animate-bounce" />
-                    <p className="text-lg font-medium text-yellow-500">Perfect Score! Amazing work!</p>
-                </div>
-            ) : (
-                <div className="flex items-center justify-center space-x-2">
-                    {isPassed ? <Check className="w-8 h-8 text-green-600" /> : <X className="w-8 h-8 text-red-600" />}
-                    <p className="text-lg font-medium">{isPassed ? "Congratulations, you passed!" : "You can do better. Keep studying!"}</p>
-                </div>
-            )}
-            
-            <div className="space-y-6">
-                <h3 className="font-bold text-lg flex items-center"><BookOpen className="mr-2 h-5 w-5" />Review Your Answers</h3>
-                {quiz?.questions.map((q, qIndex) => {
-                    const userAnswer = answers.find(a => a.questionIndex === qIndex);
-                    return (
-                        <div key={qIndex} className="p-4 border rounded-md">
-                            <p className="font-semibold mb-2">{qIndex + 1}. {q.question}</p>
-                            <div className="space-y-1">
-                                {q.options.map((option, oIndex) => (
-                                    <div key={oIndex} className="flex items-center gap-2">
-                                        {oIndex === q.correctAnswerIndex ? <Check className="h-4 w-4 text-green-600" /> : <X className="h-4 w-4 text-red-600" />}
-                                        <Label className={getOptionLabelClassName(oIndex === q.correctAnswerIndex, oIndex === userAnswer?.selectedOption, true)}>
-                                            {option}
-                                        </Label>
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+            <Card>
+                <CardHeader className="text-center">
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1, rotate: [0, 10, -10, 0] }} transition={{ type: "spring", stiffness: 300, damping: 10 }}>
+                        {isPerfect ? <PartyPopper className="w-16 h-16 text-yellow-500 mx-auto" /> : isPassed ? <Award className="w-16 h-16 text-green-500 mx-auto" /> : <XCircle className="w-16 h-16 text-red-500 mx-auto" />}
+                    </motion.div>
+                    <CardTitle className="text-3xl mt-4">Quiz Complete!</CardTitle>
+                    <CardDescription>You scored</CardDescription>
+                    <p className={`text-6xl font-bold ${isPassed ? 'text-green-600' : 'text-red-600'}`}>{Math.round(score)}%</p>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                    {isPerfect ? (
+                        <div className="text-center text-lg font-medium text-yellow-500">Perfect Score! Amazing work!</div>
+                    ) : (
+                        <div className="text-center text-lg font-medium">{isPassed ? "Congratulations, you passed!" : "You can do better. Keep studying!"}</div>
+                    )}
+                    
+                    <div className="space-y-6">
+                        <h3 className="font-bold text-lg flex items-center"><BookOpen className="mr-2 h-5 w-5" />Review Your Answers</h3>
+                        {quiz?.questions.map((q, qIndex) => {
+                            const userAnswer = answers.find(a => a.questionIndex === qIndex);
+                            return (
+                                <motion.div key={qIndex} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: qIndex * 0.1 }} className="p-4 border rounded-lg">
+                                    <p className="font-semibold mb-2">{qIndex + 1}. {q.question}</p>
+                                    <div className="space-y-1">
+                                        {q.options.map((option, oIndex) => (
+                                            <div key={oIndex} className="flex items-center gap-2">
+                                                {oIndex === q.correctAnswerIndex ? <Check className="h-4 w-4 text-green-600 flex-shrink-0" /> : <X className="h-4 w-4 text-red-600 flex-shrink-0" />}
+                                                <Label className={getOptionLabelClassName(oIndex === q.correctAnswerIndex, oIndex === userAnswer?.selectedOption, true)}>
+                                                    {option}
+                                                </Label>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-            
-            <Button onClick={handleTryAgain} className="w-full">
-                <Lightbulb className="mr-2 h-4 w-4" />
-                Create a New Quiz
-            </Button>
-        </CardContent>
-      </Card>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                    
+                    <Button onClick={handleTryAgain} className="w-full">
+                        <Lightbulb className="mr-2 h-4 w-4" />
+                        Create a New Quiz
+                    </Button>
+                </CardContent>
+            </Card>
+        </motion.div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Create Your Quiz</CardTitle>
-        <CardDescription>Use your notes, an image, or let AI generate a quiz from a topic.</CardDescription>
-      </CardHeader>
-      <CardContent>
-          <Tabs defaultValue="paste" onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="paste">Paste Content</TabsTrigger>
-                  <TabsTrigger value="upload">Upload File</TabsTrigger>
-                  <TabsTrigger value="ai">Generate with AI</TabsTrigger>
-              </TabsList>
-              <TabsContent value="paste" className="mt-4">
-                  <Textarea 
-                      placeholder="Paste your study notes or an image here..."
-                      value={textContent}
-                      onChange={(e) => {
-                        setTextContent(e.target.value);
-                        setImageDataUri(null);
-                      }}
-                      onPaste={handlePaste}
-                      className="h-48"
-                  />
-                   {imageDataUri && (
-                    <div className="mt-4 relative w-full h-48">
-                        <Image src={imageDataUri} alt="Pasted content" layout="fill" objectFit="contain" />
-                        <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => setImageDataUri(null)}>
-                            <X className="h-4 w-4" />
-                        </Button>
-                    </div>
-                   )}
-              </TabsContent>
-              <TabsContent value="upload" className="mt-4">
-                  <div className="flex items-center space-x-2 p-4 border-2 border-dashed rounded-md">
-                      <Upload className="h-5 w-5 text-muted-foreground" />
-                      <input type="file" accept=".txt,image/*" onChange={handleFileChange} ref={fileInputRef} className="max-w-sm text-sm"/>
-                  </div>
-              </TabsContent>
-              <TabsContent value="ai" className="mt-4 space-y-4">
-                <Input 
-                    placeholder="Enter a topic, e.g., 'Quantum Mechanics'"
-                    value={topic}
-                    onChange={(e) => setTopic(e.target.value)}
-                />
-              </TabsContent>
-          </Tabs>
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+        <Card>
+            <CardHeader>
+                <CardTitle>Create Your Quiz</CardTitle>
+                <CardDescription>Use your notes, an image, or let AI generate a quiz from a topic.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Tabs defaultValue="paste" onValueChange={setActiveTab} className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="paste">Paste Content</TabsTrigger>
+                        <TabsTrigger value="upload">Upload File</TabsTrigger>
+                        <TabsTrigger value="ai">Generate with AI</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="paste" className="mt-4">
+                        <Textarea 
+                            placeholder="Paste your study notes or an image here..."
+                            value={textContent}
+                            onChange={(e) => {
+                                setTextContent(e.target.value);
+                                setImageDataUri(null);
+                            }}
+                            onPaste={handlePaste}
+                            className="h-48"
+                        />
+                        {imageDataUri && (
+                            <div className="mt-4 relative w-full h-48">
+                                <Image src={imageDataUri} alt="Pasted content" layout="fill" objectFit="contain" />
+                                <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => setImageDataUri(null)}>
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        )}
+                    </TabsContent>
+                    <TabsContent value="upload" className="mt-4">
+                        <div className="flex items-center space-x-2 p-4 border-2 border-dashed rounded-md">
+                            <Upload className="h-5 w-5 text-muted-foreground" />
+                            <input type="file" accept=".txt,image/*" onChange={handleFileChange} ref={fileInputRef} className="max-w-sm text-sm"/>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="ai" className="mt-4 space-y-4">
+                        <Input 
+                            placeholder="Enter a topic, e.g., 'Quantum Mechanics'"
+                            value={topic}
+                            onChange={(e) => setTopic(e.target.value)}
+                        />
+                    </TabsContent>
+                </Tabs>
 
-          <div className="mt-4 flex items-center gap-4">
-            <div className="flex-grow">
-                <Label htmlFor="num-questions">Number of Questions</Label>
-                <Select value={numQuestions} onValueChange={setNumQuestions}>
-                    <SelectTrigger id="num-questions" className="w-[120px]">
-                        <SelectValue placeholder="Number of questions" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="5">5</SelectItem>
-                        <SelectItem value="10">10</SelectItem>
-                        <SelectItem value="15">15</SelectItem>
-                        <SelectItem value="20">20</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
-            <Button onClick={handleGenerateQuiz} className="self-end" disabled={quizState === 'loading'}>
-                <BrainCircuit className="mr-2 h-4 w-4" />
-                Generate Quiz
-            </Button>
-          </div>
-      </CardContent>
-    </Card>
+                <div className="mt-4 flex items-center gap-4">
+                    <div className="flex-grow">
+                        <Label htmlFor="num-questions">Number of Questions</Label>
+                        <Select value={numQuestions} onValueChange={setNumQuestions}>
+                            <SelectTrigger id="num-questions" className="w-[120px]">
+                                <SelectValue placeholder="Number of questions" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="5">5</SelectItem>
+                                <SelectItem value="10">10</SelectItem>
+                                <SelectItem value="15">15</SelectItem>
+                                <SelectItem value="20">20</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <Button onClick={handleGenerateQuiz} className="self-end" disabled={quizState === 'loading'}>
+                        <BrainCircuit className="mr-2 h-4 w-4" />
+                        Generate Quiz
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    </motion.div>
   );
 }
