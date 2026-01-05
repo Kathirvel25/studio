@@ -83,8 +83,8 @@ export function UpcomingDeadlines({ deadlines, onAddTask }: UpcomingDeadlinesPro
                         <Button variant="ghost" size="icon" onClick={() => setEditingTask(deadline)}>
                             <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(deadline.id)}>
-                            <Trash2 className="h-4 w-4 text-red-500" />
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(deadline.id)} className="text-red-500 hover:text-red-600">
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
