@@ -301,7 +301,7 @@ export function QuizClient() {
                     <TabsContent value="upload" className="mt-4">
                         <div className="flex items-center space-x-2 p-4 border-2 border-dashed rounded-md">
                             <Upload className="h-5 w-5 text-muted-foreground" />
-                            <input type="file" accept=".txt,image/*" onChange={handleFileChange} ref={fileInputref} className="max-w-sm text-sm"/>
+                            <input type="file" accept=".txt,image/*" onChange={handleFileChange} ref={fileInputRef} className="max-w-sm text-sm"/>
                         </div>
                     </TabsContent>
                     <TabsContent value="ai" className="mt-4 space-y-4">
