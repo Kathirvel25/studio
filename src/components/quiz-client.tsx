@@ -1,7 +1,8 @@
+
 "use client";
 
 import { useState, useRef } from "react";
-import { Loader2, Upload, BrainCircuit, Check, X, BookOpen, Lightbulb, PartyPopper } from "lucide-react";
+import { Loader2, Upload, BrainCircuit, Check, X, BookOpen, Lightbulb, PartyPopper, Award, XCircle } from "lucide-react";
 import { generateMcq } from "@/app/(app)/quiz/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -300,7 +301,7 @@ export function QuizClient() {
                     <TabsContent value="upload" className="mt-4">
                         <div className="flex items-center space-x-2 p-4 border-2 border-dashed rounded-md">
                             <Upload className="h-5 w-5 text-muted-foreground" />
-                            <input type="file" accept=".txt,image/*" onChange={handleFileChange} ref={fileInputRef} className="max-w-sm text-sm"/>
+                            <input type="file" accept=".txt,image/*" onChange={handleFileChange} ref={fileInputref} className="max-w-sm text-sm"/>
                         </div>
                     </TabsContent>
                     <TabsContent value="ai" className="mt-4 space-y-4">
@@ -337,3 +338,5 @@ export function QuizClient() {
     </motion.div>
   );
 }
+
+    
