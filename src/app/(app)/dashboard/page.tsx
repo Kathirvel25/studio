@@ -3,12 +3,10 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import { StreakCounter } from "@/components/dashboard/streak-counter";
 import { TodaysTasks } from "@/components/dashboard/todays-tasks";
-import { ProgressOverviewChart } from "@/components/dashboard/progress-overview-chart";
 import { UpcomingDeadlines } from "@/components/dashboard/upcoming-deadlines";
-import { SuggestedVideos } from "@/components/dashboard/suggested-videos";
 import {
   Card,
   CardContent,
@@ -21,6 +19,24 @@ import { XPCard } from "@/components/gamification/xp-card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { CreateTaskDialog } from "@/components/tasks/create-task-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const ProgressOverviewChart = dynamic(
+  () => import('@/components/dashboard/progress-overview-chart').then(mod => mod.ProgressOverviewChart),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-[350px]" />,
+  }
+);
+
+const SuggestedVideos = dynamic(
+  () => import('@/components/dashboard/suggested-videos').then(mod => mod.SuggestedVideos),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="h-[400px]" />,
+  }
+);
+
 
 export default function DashboardPage() {
   const { user } = useUser();
@@ -85,36 +101,18 @@ export default function DashboardPage() {
 
   const learningSubjects = (userProfile as any)?.subjects?.map((s: any) => s.name) || [];
   
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1 },
-  };
-
   return (
     <>
     <div className="space-y-4 p-4 md:p-8">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
       </div>
-      <motion.div 
+      <div 
         className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
       >
-        <motion.div variants={itemVariants} className="transition-transform transform hover:scale-105"><StreakCounter streak={streak} /></motion.div>
-        <motion.div variants={itemVariants} className="transition-transform transform hover:scale-105"><XPCard stats={userStats} /></motion.div>
-        <motion.div variants={itemVariants} className="transition-transform transform hover:scale-105">
+        <div className="transition-transform transform hover:scale-105"><StreakCounter streak={streak} /></div>
+        <div className="transition-transform transform hover:scale-105"><XPCard stats={userStats} /></div>
+        <div className="transition-transform transform hover:scale-105">
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Tasks Completed</CardTitle>
@@ -125,8 +123,8 @@ export default function DashboardPage() {
                     <p className="text-xs text-muted-foreground">today</p>
                 </CardContent>
             </Card>
-        </motion.div>
-        <motion.div variants={itemVariants} className="transition-transform transform hover:scale-105">
+        </div>
+        <div className="transition-transform transform hover:scale-105">
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Upcoming Deadlines</CardTitle>
@@ -137,8 +135,8 @@ export default function DashboardPage() {
                     <p className="text-xs text-muted-foreground">in total</p>
                 </CardContent>
             </Card>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-7">
         <div className="lg:col-span-4">
           <ProgressOverviewChart data={progressChartData} />
