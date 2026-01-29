@@ -15,7 +15,6 @@ import { Label } from "./ui/label";
 import Image from "next/image";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { motion } from "framer-motion";
 
 type QuizState = 'idle' | 'loading' | 'quiz' | 'result';
 type Answer = { questionIndex: number; selectedOption: number };
@@ -182,7 +181,7 @@ export function QuizClient() {
 
   if (quizState === 'quiz' && quiz) {
     return (
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+      <div>
         <Card>
           <CardHeader>
             <CardTitle>Quiz Time!</CardTitle>
@@ -190,7 +189,7 @@ export function QuizClient() {
           </CardHeader>
           <CardContent className="space-y-8">
             {quiz.questions.map((q, qIndex) => (
-              <motion.div key={qIndex} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: qIndex * 0.1 }}>
+              <div key={qIndex}>
                 <p className="font-semibold mb-4">{qIndex + 1}. {q.question}</p>
                 <RadioGroup onValueChange={(value) => handleAnswerChange(qIndex, parseInt(value))}>
                   {q.options.map((option, oIndex) => (
@@ -200,14 +199,14 @@ export function QuizClient() {
                     </div>
                   ))}
                 </RadioGroup>
-              </motion.div>
+              </div>
             ))}
             <Button onClick={handleSubmitQuiz} className="w-full">
               Submit Quiz
             </Button>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     );
   }
 
@@ -215,12 +214,12 @@ export function QuizClient() {
     const isPassed = score >= PASS_PERCENTAGE;
     const isPerfect = score === 100;
     return (
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+        <div>
             <Card>
                 <CardHeader className="text-center">
-                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1, rotate: [0, 10, -10, 0] }} transition={{ type: "spring", stiffness: 300, damping: 10 }}>
+                    <div>
                         {isPerfect ? <PartyPopper className="w-16 h-16 text-yellow-500 mx-auto" /> : isPassed ? <Award className="w-16 h-16 text-green-500 mx-auto" /> : <XCircle className="w-16 h-16 text-red-500 mx-auto" />}
-                    </motion.div>
+                    </div>
                     <CardTitle className="text-3xl mt-4">Quiz Complete!</CardTitle>
                     <CardDescription>You scored</CardDescription>
                     <p className={`text-6xl font-bold ${isPassed ? 'text-green-600' : 'text-red-600'}`}>{Math.round(score)}%</p>
@@ -237,7 +236,7 @@ export function QuizClient() {
                         {quiz?.questions.map((q, qIndex) => {
                             const userAnswer = answers.find(a => a.questionIndex === qIndex);
                             return (
-                                <motion.div key={qIndex} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: qIndex * 0.1 }} className="p-4 border rounded-lg">
+                                <div key={qIndex} className="p-4 border rounded-lg">
                                     <p className="font-semibold mb-2">{qIndex + 1}. {q.question}</p>
                                     <div className="space-y-1">
                                         {q.options.map((option, oIndex) => (
@@ -249,7 +248,7 @@ export function QuizClient() {
                                             </div>
                                         ))}
                                     </div>
-                                </motion.div>
+                                </div>
                             );
                         })}
                     </div>
@@ -260,12 +259,12 @@ export function QuizClient() {
                     </Button>
                 </CardContent>
             </Card>
-        </motion.div>
+        </div>
     );
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+    <div>
         <Card>
             <CardHeader>
                 <CardTitle>Create Your Quiz</CardTitle>
@@ -335,8 +334,6 @@ export function QuizClient() {
                 </div>
             </CardContent>
         </Card>
-    </motion.div>
+    </div>
   );
 }
-
-    
