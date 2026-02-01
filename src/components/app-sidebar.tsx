@@ -40,7 +40,7 @@ export function AppSidebar() {
         <div className="flex items-center gap-2 p-2">
             <Link href="/dashboard" className="flex items-center gap-2">
                 <Flame className="w-8 h-8 text-primary" />
-                <span className="text-lg font-semibold tracking-tighter text-sidebar-primary">StudyStreak AI</span>
+                <span className="text-lg font-extrabold tracking-tight text-sidebar-primary">StudyStreak AI</span>
             </Link>
         </div>
       </SidebarHeader>
